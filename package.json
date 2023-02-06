@@ -1,0 +1,30 @@
+{
+  "name": "chinanear",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "df": "cd front && npm run dev",
+    "db": "cd back && yarn dev",
+    "bf": "cd front && npm run build",
+    "bb": "cd back && yarn build",
+    "sf": "cd front && npm run start",
+    "sb": "cd back && yarn start",
+    "dev": "concurrently \"npm run df\" \"npm run db\"",
+    "build": "concurrently \"npm run bb\" \"npm run bf\"",
+    "start": "concurrently \"npm run sb\" \"npm run sf\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexshogi/chinanear-back.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexshogi/chinanear-back/issues"
+  },
+  "homepage": "https://github.com/alexshogi/chinanear-back#readme",
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

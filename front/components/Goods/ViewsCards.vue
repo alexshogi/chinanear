@@ -1,0 +1,307 @@
+<template>
+  <div>
+    <div
+      v-if="loading || !data.length"
+      class="goods-cards-container"
+      :class="{ row: row }"
+    >
+      <div
+        v-for="item in row ? 5 : 20"
+        :key="item"
+        class="card-holder"
+      >
+        <v-skeleton-loader
+          type="image, list-item, card-heading, list-item-two-line"
+          class="simple-goods-card"
+        />
+      </div>
+    </div>
+    <div
+      v-else
+      class="goods-cards-container"
+      :class="{ row: row }"
+    >
+      <div
+        v-for="item in data"
+        :key="item.id"
+        class="card-holder"
+      >
+        <v-card
+          class="simple-goods-card"
+          flat
+        >
+          <v-card-text
+            class="d-flex flex-column"
+            @click="openGoods(item.id)"
+          >
+            <div
+              class="goods-image mb-2"
+              :style="`background-image: url(${getImageLink(item.image?.url)})`"
+            />
+            <span
+              class="goods-price-minmax mb-1"
+            >
+              ₽ {{ minPrice(item) }} - {{ maxPrice(item) }}
+            </span>
+            <span
+              class="goods-title"
+            >
+              {{ item.title }}
+            </span>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn
+              color="primary"
+              class="btn-common"
+              depressed
+              @click="addToCart(item)"
+            >
+              {{ isProductInCart(item) ? $t('in-cart') : $t('add-to-cart') }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex';
+import text from '@/utils/mixins/text';
+
+export default {
+  name: 'ViewsCards',
+  mixins: [
+    text
+  ],
+  props: {
+    data: {
+      type: Array,
+      default: () => []
+    },
+    loading: {
+      type: Boolean,
+      default: () => true
+    },
+    row: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data () {
+    return {
+      menu: []
+    }
+  },
+  computed: {
+    ...mapGetters({
+      cartProducts: 'cartProducts',
+      user: 'user'
+    }),
+  },
+  methods: {
+    ...mapActions({
+      addProductToCart: 'addProductToCart',
+    }),
+    isProductInCart (product) {
+      return this.cartProducts.some(p => p.id === product.id);
+    },
+    addToCart (product) {
+      this.addProductToCart({
+        ...product,
+        amount: 1
+      });
+
+      if (this.user) {
+        this.saveCart();
+      }
+    },
+    async saveCart () {
+      const graphqlQuery = {
+        query: `
+          mutation {
+            createCart(data: {
+              products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
+              userId: "${this.user.id}"
+            }) {
+              products
+              userId
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Save cart response', response);
+    },
+    openGoods (id) {
+      this.$emit('open-goods', id)
+    },
+    minPrice (item) {
+      if (! item.intervals) {
+        return '';
+      }
+
+      return item.intervals[item.intervals.length - 1].price;
+    },
+    maxPrice (item) {
+      if (! item.intervals) {
+        return '';
+      }
+
+      return item.intervals[0].price;
+    },
+    getImageLink (url) {
+      if (!url) return '';
+
+      // const parts = url.split('3000/');
+
+      // const imageUrl = parts[1];
+
+      // return 'https://chinanear-back.onrender.com/' + imageUrl;
+      // return 'http://194.87.234.69:3000/' + imageUrl;
+      
+      return url;
+    }
+  }
+}
+</script>
+
+<style scoped>
+  .v-card__actions {
+    padding: 0px;
+  }
+
+  .v-card__actions > button.v-btn.btn-common {
+    padding: 10px 18px;
+    border-radius: 2px;
+    height: unset;
+    width: unset;
+    min-width: unset;
+    font-weight: 600;
+    font-size: 10px;
+    line-height: 12px;
+    letter-spacing: 0.02em;color: #FFFFFF;
+    text-transform: none;
+  }
+</style>
+
+<style lang="scss" scoped>
+@media only screen and (min-width: 480px) {
+  .goods-cards-container {
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
+  }
+}
+
+@media only screen and (min-width: 980px) {
+  .goods-cards-container {
+    grid-template-columns: repeat(3, minmax(200px, 1fr));
+  }
+}
+
+@media only screen and (min-width: 1900px) {
+  .goods-cards-container {
+    grid-template-columns: repeat(5, minmax(200px, 1fr));
+  }
+}
+
+.goods-cards-container {
+  display: grid;
+  gap: 16px;
+  min-height: 300px;
+
+  &.row {
+    grid-template-columns: repeat(5, minmax(224px, 1fr)) !important;
+    grid-template-rows: 370px;
+    max-height: 370px;
+    overflow-y: hidden;
+    overflow-x: scroll;
+  }
+}
+
+.card-holder {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.simple-goods-card {
+  min-width: 224px;
+  // max-width: 230px;
+  height: 330px;
+  background: #FFFFFF;
+  border-radius: 4px;
+  padding: 12px;
+  transition: all linear .18s;
+  box-shadow: 6px 0px 16px rgba(0, 0, 0, 0.04), 1px 2px 4px -1px rgba(0, 0, 0, 0.08) !important;
+
+  &.v-skeleton-loader {
+    ::v-deep {
+      > div:not(.v-skeleton-loader__image) {
+        background-color: transparent;
+      }
+      .v-skeleton-loader__image {
+        height: 200px;
+        width: 200px;
+      }
+    }
+  }
+  .v-card__text {
+    padding: 0;
+    background-color: transparent !important;
+
+    .goods-image {
+      width: 200px;
+      height: 200px;
+      // border: 1px solid #EEEEEE;
+      border-radius: 3px;
+      margin: 0 auto;
+      background-position: center;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+
+    span {
+      font-size: 14px;
+      &.visited {
+        color: var(--accent-4) !important;
+      }
+    }
+
+    .goods-price-minmax {
+      font-size: 16px;
+      line-height: 18px;
+      letter-spacing: 0.01em;
+      color: #333333;
+    }
+
+    .goods-title {
+      height: 44px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: 12px;
+      line-height: 16px;
+
+      + span {
+        height: 34px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 17px;
+      }
+    }
+  }
+}
+
+.skeleton-goods-card {
+  padding: 20px;
+}
+</style>
