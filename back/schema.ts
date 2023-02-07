@@ -140,7 +140,10 @@ export const lists: Lists = {
     access: allowAll,
     fields: {
       products: text(),
-      userId: text(),
+      userId: text({
+        validation: { isRequired: true },
+        isIndexed: 'unique',
+      }),
       createdAt: timestamp({ defaultValue: { kind: 'now' } }),
       updatedAt: timestamp({ defaultValue: { kind: 'now' } }),
     }

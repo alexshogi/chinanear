@@ -477,16 +477,51 @@ export default {
   },
   mounted () {
     this.checkAuth();
+    this.getCart();
   },
   methods: {
     ...mapActions({
-      setAuth: 'login'
+      setAuth: 'login',
+      setCart: 'setCart',
     }),
     checkAuth () {
       const auth = localStorage.getItem('auth');
 
       if (auth) {
         this.setAuth(JSON.parse(auth));
+      }
+    },
+    async getCart () {
+      const graphqlQuery = {
+        query: `
+          query {
+            cart (
+              where: {
+                userId: "${this.user.id}"
+              }
+            ) {
+              id
+              products
+              userId
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get cart response', response);
+
+      const cart = response?.data?.data?.cart;
+
+      if (cart) {
+        if (cart.products) {
+          cart.products = JSON.parse(cart.products.replace(/'/g, '"'));
+        }
+        this.setCart(cart);
       }
     },
     goToCart () {

@@ -27,6 +27,8 @@
           <v-row class="mt-4">
             <v-col cols="4">
               <v-text-field
+                v-model="searchValue"
+                clearable
                 dense
                 outlined
                 height="38"
@@ -37,7 +39,7 @@
             </v-col>
           </v-row>
 
-          <v-row class="filters-row px-3 py-7">
+          <!-- <v-row class="filters-row px-3 py-7">
             <div>
               <span>Показать</span>
             </div>
@@ -117,19 +119,32 @@
                 Сбросить фильтры
               </v-btn>
             </div>
-          </v-row>
+          </v-row> -->
 
           <v-row class="py-5">
             <v-data-table
-              v-model="selected"
               :headers="headers"
-              :items="items"
+              :items="filteredProducts"
               :items-per-page="15"
+              :loading="!products.length"
               checkbox-color="primary"
               flat
-              show-select
               style="width: 100%;"
-            />
+            >
+              <template
+                v-slot:[`item.createdAt`]="{ item }"
+              >
+                <span>{{ item.createdAt | datetime }}</span>
+              </template>
+              <template
+                v-slot:[`item.isActive`]="{ item }"
+              >
+                <Label
+                  :value="item.isActive ? 'Активен' : 'Неактивен'"
+                  :color="item.isActive ? 'green' : 'grey'"
+                />
+              </template>
+            </v-data-table>
           </v-row>
         </v-card>
       </v-col>
@@ -138,48 +153,27 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
+import Label from '@/components/Label.vue';
+
 export default {
   name: 'GoodsPage',
+  components: {
+    Label,
+  },
   data () {
     return {
-      itemsPart: [
-        {
-          photo: 'https://coffe-mashina.ru/image/cache/catalog/products/Philips/philips_ep1220_00_series_1200-767x767.jpg',
-          title: 'Автоматическая кофемашина Philips 1220 series',
-          category1: 'Техника для кухни',
-          price: 33800,
-          balance: 217,
-          isActive: true,
-          lastActionDate: '11.01.2023'
-        },
-        {
-          photo: 'https://cdn.vseinstrumenti.ru/images/goods/stroitelnyj-instrument/generatory/1064774/560x504/53120475.jpg',
-          title: 'Бензиновый генератор DENZEL PS 80 E-3',
-          category1: 'Бензиновые генераторы',
-          price: 57520,
-          balance: 16,
-          isActive: false,
-          lastActionDate: '12.01.2023'
-        },
-        {
-          photo: 'https://avtodeti.ru/f/tovar/avtokreslo/recaro/monza-nova-2-seatfix/select-teal-green/avtokreslo-recaro-monza-nova-2-seatfix-select-teal-green_l.jpg',
-          title: 'Recaro Monza Nova 2 Seatfix',
-          category1: 'Автокресла',
-          price: 32999,
-          balance: 179,
-          isActive: true,
-          lastActionDate: '13.01.2023'
-        },
-      ],
       headers: [
         { text: 'Товар', value: 'title' },
         { text: 'Остаток', value: 'balance' },
         { text: 'Категория', value: 'category1' },
-        { text: 'Создан/изменен', value: 'lastActionDate' },
+        { text: 'Создан/изменен', value: 'createdAt' },
         { text: 'Активность', value: 'isActive' },
-        { text: 'Мин. стоимость', value: 'price' }
+        { text: 'Мин. стоимость', value: 'minPrice' }
       ],
-      items: [],
+      products: [],
+      searchValue: '',
       statuses: [
         'Все',
         'Активные',
@@ -213,41 +207,99 @@ export default {
     }
   },
   computed: {
-    totalPrice () {
-      let price = 0;
-
-      for (const item of this.items) {
-        price += item.price * item.amount;
+    ...mapGetters({
+      user: 'user'
+    }),
+    filteredProducts () {
+      if (this.searchValue) {
+        return this.products.filter(p => p.title.toLowerCase().includes(this.searchValue.toLowerCase()));
       }
 
-      return price;
+      return this.products;
     }
   },
-  created () {
-    let id1 = 1;
-    let id2 = 1000;
-    let id3 = 2000;
+  async mounted () {
+    const auth = localStorage.getItem('auth');
 
-    for (let i = 0; i < 100; i++) {
-      let item1 = JSON.parse(JSON.stringify(this.itemsPart[0]));
-      id1 += 1;
-      item1.id = id1;
-      this.items.push(item1);
-
-      let item2 = JSON.parse(JSON.stringify(this.itemsPart[1]));
-      id2 += 1;
-      item2.id = id2;
-      this.items.push(item2);
-
-      let item3 = JSON.parse(JSON.stringify(this.itemsPart[2]));
-      id3 += 1;
-      item3.id = id3;
-      this.items.push(item3);
+    if (auth) {
+      await this.setAuth(JSON.parse(auth));
     }
+
+    this.getProducts();
   },
   methods: {
+    ...mapActions({
+      setAuth: 'login',
+    }),
     goToAdd () {
       this.$router.push({ path: 'goods/add' });
+    },
+    minPrice (item) {
+      if (! item.intervals) {
+        return '';
+      }
+
+      return item.intervals[item.intervals.length - 1].price;
+    },
+    maxPrice (item) {
+      if (! item.intervals) {
+        return '';
+      }
+
+      return item.intervals[0].price;
+    },
+    async getProducts () {
+      const graphqlQuery = {
+        query: `
+          query {
+            products (
+              where: {
+                seller: {
+                  id: {
+                    equals: "${this.user.id}"
+                  }
+                }
+              }
+            ) {
+              id
+              title
+              caption
+              description {
+                document
+              }
+              balance
+              image {
+                url
+              }
+              isActive
+              intervals
+              createdAt
+              category1
+              category2
+              category3
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get products response', response);
+
+      const products = response?.data?.data?.products;
+
+      if (products) {
+        for (const p of products) {
+          p.minPrice = this.minPrice(p);
+        }
+
+        this.products = [ ...products ];
+      } else {
+        // TODO: Show error popup
+      }
     },
   }
 }

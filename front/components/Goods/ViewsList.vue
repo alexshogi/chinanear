@@ -31,7 +31,7 @@
         >
           <div
             class="goods-image mr-7"
-            :style="`background-image: url(${getImageLink(item.image?.url)})`"
+            :style="`background-image: url(${item.image?.url})`"
           />
           <v-card-text class="d-flex flex-column justify-space-between">
             <div>
@@ -74,6 +74,7 @@
               color="primary"
               class="btn-common"
               depressed
+              :disabled="isProductInCart(item)"
               @click="addToCart(item)"
             >
               {{ isProductInCart(item) ? $t('in-cart') : $t('add-to-cart') }}
@@ -114,9 +115,6 @@ export default {
       cartProducts: 'cartProducts',
       user: 'user'
     }),
-    isProductInCart () {
-      return this.cartProducts.some(p => p.id === this.item.id);
-    },
   },
   methods: {
     ...mapActions({
@@ -132,17 +130,19 @@ export default {
       });
 
       if (this.user) {
-        this.saveCart();
+        this.handleCart();
       }
     },
-    async saveCart () {
+    async handleCart () {
       const graphqlQuery = {
         query: `
-          mutation {
-            createCart(data: {
-              products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
-              userId: "${this.user.id}"
-            }) {
+          query {
+            cart (
+              where: {
+                userId: "${this.user.id}"
+              }
+            ) {
+              id
               products
               userId
             }
@@ -155,7 +155,67 @@ export default {
         data: JSON.stringify(graphqlQuery)
       });
 
-      console.log('Save cart response', response);
+      console.log('Handle cart response', response);
+
+      const cart = response?.data?.data?.cart;
+
+      if (cart) {
+        this.updateCart();
+      } else {
+        this.createCart();
+      }
+    },
+    async createCart () {
+      const graphqlQuery = {
+        query: `
+          mutation {
+            createCart (
+              data: {
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
+                userId: "${this.user.id}"
+              }
+            ) {
+              id
+              products
+              userId
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Create cart response', response);
+    },
+    async updateCart () {
+      const graphqlQuery = {
+        query: `
+          mutation {
+            updateCart (
+              where: {
+                id: "clczunq5w0081qldu3pkjntr1"
+              }
+              data: {
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}"
+              }
+            ) {
+              id
+              products
+              userId
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Update cart response', response);
     },
     openGoods (id) {
       this.$emit('open-goods', id)
@@ -166,20 +226,6 @@ export default {
     maxPrice (item) {
       return item.intervals[0].price;
     },
-    getImageLink (url) {
-      if (!url) return '';
-
-      console.log(4, url);
-
-      // const parts = url.split('3000/');
-
-      // const imageUrl = parts[1];
-
-      // return 'https://chinanear-back.onrender.com/' + imageUrl;
-      // return 'http://194.87.234.69:3000/' + imageUrl;
-
-      return url;
-    }
   }
 }
 </script>
@@ -238,6 +284,7 @@ export default {
   padding: 16px 24px;
   transition: all linear .18s;
   border-radius: 0;
+  cursor: pointer;
 
   &.v-skeleton-loader {
     ::v-deep {

@@ -501,6 +501,7 @@ type Cart {
 
 input CartWhereUniqueInput {
   id: ID
+  userId: String
 }
 
 input CartWhereInput {

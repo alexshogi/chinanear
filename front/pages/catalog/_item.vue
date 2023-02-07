@@ -232,20 +232,20 @@ export default {
         amount: 1
       });
 
-      this.saveCart();
+      if (this.user) {
+        this.handleCart();
+      }
     },
-    setActivePhoto(index) {
-      // this.activePhoto = this.photos[index];
-      // this.activePhotoIndex = index;
-    },
-    async saveCart () {
+    async handleCart () {
       const graphqlQuery = {
         query: `
-          mutation {
-            createCart(data: {
-              products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
-              userId: "${this.user.id}"
-            }) {
+          query {
+            cart (
+              where: {
+                userId: "${this.user.id}"
+              }
+            ) {
+              id
               products
               userId
             }
@@ -258,7 +258,67 @@ export default {
         data: JSON.stringify(graphqlQuery)
       });
 
-      console.log('Save cart response', response);
+      console.log('Handle cart response', response);
+
+      const cart = response?.data?.data?.cart;
+
+      if (cart) {
+        this.updateCart();
+      } else {
+        this.createCart();
+      }
+    },
+    async createCart () {
+      const graphqlQuery = {
+        query: `
+          mutation {
+            createCart (
+              data: {
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
+                userId: "${this.user.id}"
+              }
+            ) {
+              id
+              products
+              userId
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Create cart response', response);
+    },
+    async updateCart () {
+      const graphqlQuery = {
+        query: `
+          mutation {
+            updateCart (
+              where: {
+                id: "clczunq5w0081qldu3pkjntr1"
+              }
+              data: {
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}"
+              }
+            ) {
+              id
+              products
+              userId
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Update cart response', response);
     },
     async getProduct (id) {
       this.loading = true;

@@ -16,6 +16,7 @@
     "@nuxtjs/auth-next": "5.0.0-1667386184.dfbbb54",
     "@nuxtjs/axios": "^5.13.6",
     "core-js": "^3.25.3",
+    "date-fns": "^2.29.3",
     "markdown-it": "9.1.0",
     "nuxt": "^2.15.8",
     "nuxt-i18n": "^6.27.1",

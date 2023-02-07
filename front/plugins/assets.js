@@ -1,7 +1,12 @@
 import Vue from 'vue';
-import assets from '../classes/assets';
+import { format } from 'date-fns';
 
-Vue.prototype.$assets = assets;
+Vue.filter('datetime', function (value) {
+  if (!value) return '';
+
+  return format(new Date(value), 'MM.dd.yyyy HH:mm')
+})
+
 Vue.prototype.$scrollTop = function () {
   window.scrollTo({
     top: 600,

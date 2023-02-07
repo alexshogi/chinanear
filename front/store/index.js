@@ -38,7 +38,10 @@ const store = () => new Vuex.Store({
     },
     ADD_PRODUCTS_TO_CART(state, products) {
       state.cart.products = [ ...state.cart.products, ...products ];
-    }
+    },
+    SET_CART(state, cart) {
+      state.cart = cart;
+    },
   },
   actions: {
     logout({ commit }) {
@@ -50,6 +53,9 @@ const store = () => new Vuex.Store({
       commit('LOGIN', data);
 
       localStorage.setItem('auth', JSON.stringify(data));
+    },
+    setCart({ commit }, cart) {
+      commit('SET_CART', cart);
     },
     addProductToCart({ commit }, product) {
       commit('ADD_PRODUCT_TO_CART', product);
