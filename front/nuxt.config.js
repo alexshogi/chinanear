@@ -44,8 +44,8 @@ export default {
     }]
   ],
   axios: {
-    baseURL: 'http://localhost:3000/api/graphql',
-    // baseURL: 'http://194.58.122.11:3000/api/graphql',
+    // baseURL: 'http://localhost:3000/api/graphql',
+    baseURL: 'http://194.58.122.11:3000/api/graphql',
     timeout: 10000,
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -53,7 +53,7 @@ export default {
     },
   },
   server: {
-    // host: '0.0.0.0',
+    host: '0.0.0.0',
     port: 8080
   },
   vuetify: {

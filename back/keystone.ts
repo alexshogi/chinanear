@@ -28,16 +28,16 @@ export default withAuth(
     session,
     server: {
       cors: { origin: ['http://localhost:8080', 'http://194.58.122.11:8080', 'http://192.168.1.10:8080'] },
-      // options: {
-      //   host: '0.0.0.0',
-      // },
+      options: {
+        host: '0.0.0.0',
+      },
     },
     storage: {
       server_storage: {
         kind: 'local',
         type: 'image',
-        generateUrl: path => `http://localhost:3000/images${path}`,
-        // generateUrl: path => `http://194.58.122.11:3000/images${path}`,
+        // generateUrl: path => `http://localhost:3000/images${path}`,
+        generateUrl: path => `http://194.58.122.11:3000/images${path}`,
         serverRoute: {
           path: '/images',
         },
