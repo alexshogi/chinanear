@@ -214,14 +214,14 @@
             text
             @click="removeProduct"
           >
-            Remove
+            {{ $t('remove') }}
           </v-btn>
           <v-btn
             color="green darken-1"
             text
             @click="confirmRemoveDialog = false"
           >
-            Cancel
+            {{ $t('cancel') }}
           </v-btn>
         </v-card-actions>
       </v-card>

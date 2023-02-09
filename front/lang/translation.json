@@ -70,7 +70,8 @@
     "checkout": "Checkout",
     "currency": "Currency",
     "not-a-public-offer": "Not a public offer",
-    "categories": "Categories"
+    "categories": "Categories",
+    "cancel": "Cancel"
   },
   "ru": {
     "register-success-message": "Успешная регистрация. Переход на страницу входа...",
@@ -143,6 +144,7 @@
     "checkout": "Оформить заказ",
     "currency": "Валюта",
     "not-a-public-offer": "Не является публичной офертой",
-    "categories": "Категории"
+    "categories": "Категории",
+    "cancel": "Отмена"
   }
 }
