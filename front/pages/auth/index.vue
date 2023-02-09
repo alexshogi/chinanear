@@ -160,6 +160,16 @@ export default {
                   id
                   name
                   email
+                  surname
+                  companyName
+                  companyMarketNameRu
+                  companyMarketNameEn
+                  postcode
+                  country
+                  city
+                  street
+                  house
+                  building
                 }
               }
               ... on UserAuthenticationWithPasswordFailure {

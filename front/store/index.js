@@ -9,6 +9,7 @@ const store = () => new Vuex.Store({
     authorised: false,
     sessionToken: '',
     cart: {
+      id: '',
       products: []
     }
   },
@@ -39,6 +40,13 @@ const store = () => new Vuex.Store({
     ADD_PRODUCTS_TO_CART(state, products) {
       state.cart.products = [ ...state.cart.products, ...products ];
     },
+    REMOVE_PRODUCT_FROM_CART(state, productId) {
+      state.cart.products = [ ...state.cart.products.filter(p => p.id !== productId) ];
+    },
+    SET_CART_PRODUCT_AMOUNT(state, { id, amount }) {
+      const product = state.cart.products.find(p => p.id === id);
+      product.amount = amount;
+    },
     SET_CART(state, cart) {
       state.cart = cart;
     },
@@ -62,7 +70,13 @@ const store = () => new Vuex.Store({
     },
     addProductsToCart({ commit }, products) {
       commit('ADD_PRODUCTS_TO_CART', products);
-    }
+    },
+    removeProductFromCart({ commit }, productId) {
+      commit('REMOVE_PRODUCT_FROM_CART', productId);
+    },
+    setCartProductAmount({ commit }, { id, amount }) {
+      commit('SET_CART_PRODUCT_AMOUNT', { id, amount });
+    },
   },
 });
 

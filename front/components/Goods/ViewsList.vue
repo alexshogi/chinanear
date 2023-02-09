@@ -113,7 +113,8 @@ export default {
   computed: {
     ...mapGetters({
       cartProducts: 'cartProducts',
-      user: 'user'
+      user: 'user',
+      cart: 'cart',
     }),
   },
   methods: {
@@ -196,10 +197,11 @@ export default {
           mutation {
             updateCart (
               where: {
-                id: "clczunq5w0081qldu3pkjntr1"
+                id: "${this.cart.id}"
               }
               data: {
-                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}"
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
+                userId: "${this.user.id}"
               }
             ) {
               id

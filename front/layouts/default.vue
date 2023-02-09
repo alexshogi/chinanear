@@ -94,7 +94,7 @@
             </v-menu>
           </div>
           <div class="d-flex justify-space-between align-center ml-3">
-            <div class="mr-2">Currency</div>
+            <div class="mr-2">{{ $t('currency') }}</div>
             <v-menu offset-y class="pa-0">
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -107,16 +107,16 @@
                   <img
                     width="22px"
                     height="16px"
-                    src="../static/flag_usa.png"
-                    alt="USD"
+                    src="../static/flag_ru.png"
+                    alt="RU"
                     class="mr-2"
                   >
-                  <span>USD</span>
+                  <span>RUB</span>
                   <v-icon>mdi-menu-down</v-icon>
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item class="list-elem">
+                <v-list-item class="list-elem" disabled>
                   <v-list-item-title>
                     <img
                       width="22px"
@@ -140,7 +140,7 @@
                     RUB
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item class="list-elem">
+                <v-list-item class="list-elem" disabled>
                   <v-list-item-title>
                     <img
                       width="22px"
@@ -177,7 +177,10 @@
               </v-btn>
             </template>
             <v-list>
-              <v-list-item class="list-elem">
+              <v-list-item
+                class="list-elem"
+                @click="logout"
+              >
                 <v-list-item-title>
                   {{$t('logout')}}
                 </v-list-item-title>
@@ -447,8 +450,16 @@
       style="height: 88px;"
       :style="{background: $vuetify.theme.themes[theme].footerBackground}"
     >
-      <span style="font-weight: 400; font-size: 16px; line-height: 24px; text-align: center; color: #616161;">
-        Не является публичной офертой. (С) Evil Tech, {{ new Date().getFullYear() }} г.
+      <span
+        style="font-weight: 400;
+        font-size: 16px;
+        line-height: 24px;
+        text-align: center;
+        color: #616161;"
+      >
+        {{ $t('not-a-public-offer') }}
+        (c) Evil Tech,
+        {{ new Date().getFullYear() }}
       </span>
     </v-footer>
   </v-app>
@@ -482,6 +493,7 @@ export default {
   methods: {
     ...mapActions({
       setAuth: 'login',
+      logout: 'logout',
       setCart: 'setCart',
     }),
     checkAuth () {

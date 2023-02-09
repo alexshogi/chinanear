@@ -10,27 +10,25 @@
           class="pa-4 mb-4"
           flat
         >
-          <h1 class="mb-4">
-            Корзина
-            <!-- <sup>(3)</sup> -->
-          </h1>
+          <h1 class="mb-4">{{ $t('cart') }}</h1>
 
           <div class="divider" />
 
           <section class="delivery mt-4">
             <div class="subject">
-              <span>Доставка:</span>
+              <span>{{ $t('delivery-address') }}:</span>
             </div>
             <div class="address mx-3 text-left">
-              <span>141282, Россия, Московская область, городской округ Пушкинский, Ивантеевка, Пионерская ул. 11</span>
+              <span>{{ address }}</span>
             </div>
             <div class="actions">
               <v-btn
                 color="primary"
+                disabled
                 text
                 style="text-transform: none; letter-spacing: normal; padding: 0; height: fit-content; font-size: 14px; line-height: 20px;"
               >
-                Изменить
+                {{ $t('change') }}
               </v-btn>
             </div>
           </section>
@@ -40,7 +38,7 @@
           class="pa-8"
           flat
         >
-          <v-row>
+          <!-- <v-row>
             <v-col
               cols="12"
               class="d-flex justify-start align-center"
@@ -61,8 +59,8 @@
                 Удалить выбранные
               </v-btn>
             </v-col>
-          </v-row>
-          <v-row
+          </v-row> -->
+          <!-- <v-row
             style="background: #F5F5F5; border-radius: 4px;"
             class="mb-3"
           >
@@ -71,7 +69,7 @@
               class="d-flex justify-space-between align-center"
             >
               <div class="seller">
-                <span>Продавец: </span>
+                <span>{{ $t('seller') }}: </span>
                 <NuxtLink
                   to="/"
                   style="text-decoration: none; font-size: 14px;"
@@ -82,20 +80,21 @@
               <div class="seller-chat">
                 <v-btn
                   color="primary"
+                  disabled
                   text
                   style="text-transform: none; letter-spacing: normal; padding: 0; height: fit-content; font-size: 14px; line-height: 20px;"
                 >
-                  Чат с продавцом
+                  {{ $t('chat-with-seller') }}
                 </v-btn>
               </div>
             </v-col>
-          </v-row>
+          </v-row> -->
           <v-row
             v-for="item in cartProducts"
             :key="item.id"
             class="cart-item mt-2 mb-2"
           >
-            <v-col
+            <!-- <v-col
               cols="1"
               class="d-flex justify-center align-center"
             >
@@ -105,16 +104,16 @@
                 class="ma-0 pa-0"
                 hide-details
               />
-            </v-col>
+            </v-col> -->
             <v-col cols="2">
               <div
                 class="item-image"
-                :style="`background-image: url(${item.image?.url})`"
+                :style="`background-image: url(${item.image.url})`"
                 alt="PHOTO"
               />
             </v-col>
             <v-col
-              cols="5"
+              cols="6"
               class="text-info"
             >
               <h3 class="mt-2">{{ item.title }}</h3>
@@ -123,8 +122,9 @@
                 class="mb-2"
                 text
                 style="text-transform: none; letter-spacing: normal; padding: 0; width: fit-content; height: fit-content; font-size: 14px; line-height: 20px;"
+                @click="handleRemoveClick(item.id)"
               >
-                Удалить
+                {{ $t('remove') }}
               </v-btn>
             </v-col>
             <v-col cols="2">
@@ -134,18 +134,19 @@
               <v-text-field
                 type="number"   
                 step="1"
-                label="Количество, шт"
+                :label="$t('amount')"
                 outlined
                 dense
                 min="0"
                 ref="input"
                 :rules="[numberRule]"
                 v-model.number="item.amount"
+                @input="handleProductAmountInput(item)"
               />
               <span
                 style="font-size: 11px; line-height: 16px; color: #9E9E9E;"
               >
-                {{ item.intervals[0]?.price }} ₽ / шт.
+                {{ item.intervals[0]?.price }}
               </span>
             </v-col>
           </v-row>
@@ -153,7 +154,7 @@
             <v-textarea
               v-model="comment"
               outlined
-              label="Комментарий к заказу"
+              :label="$t('comment')"
               class="mt-3"
               style="font-size: 14px; line-height: 20px; color: #616161;"
             />
@@ -170,14 +171,17 @@
               class="mb-6 pa-0 text-center"
               style="font-size: 18px; line-height: 28px; color: #616161;"
             >
-              Общая стоимость:
+              {{ $t('total-price') }}:
             </p>
             <p
               class="text-center"
               style="font-weight: 600; font-size: 32px; line-height: 44px; color: #424242;"
             >
-              {{ totalPrice }}
-              <span style="font-size: 26px;">₽</span>
+              <money-format
+                :value="totalPrice"
+                locale="ru"
+                currency-code="rub"
+              />
             </p>
           </v-card-text>
           <v-card-actions>
@@ -186,20 +190,54 @@
               depressed
               style="letter-spacing: normal; width: 100%; color: #FFFFFF; font-weight: 700; font-size: 14px; line-height: 17px; padding: 20px;"
             >
-              Оформить
+              {{ $t('checkout') }}
             </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
+
+    <v-dialog
+      v-model="confirmRemoveDialog"
+      persistent
+      max-width="300"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Confirmation
+        </v-card-title>
+        <v-card-text>Are you sure you want to remove this item from your cart?</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="red darken-1"
+            text
+            @click="removeProduct"
+          >
+            Remove
+          </v-btn>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="confirmRemoveDialog = false"
+          >
+            Cancel
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import MoneyFormat from 'vue-money-format';
 
 export default {
   name: 'CartPage',
+  components: {
+    'money-format': MoneyFormat,
+  },
   data () {
     return {
       all: false,
@@ -207,41 +245,17 @@ export default {
         if (val < 0) return 'Please enter a positive number'
         return true
       },
+      confirmRemoveDialog: false,
+      productToRemoveId: '',
       comment: '',
-      items: [
-        {
-          photo: 'https://coffe-mashina.ru/image/cache/catalog/products/Philips/philips_ep1220_00_series_1200-767x767.jpg',
-          title: 'Автоматическая кофемашина Philips 1220 series',
-          price: 33800,
-          amount: 2,
-          labels: [],
-          id: '12qw',
-          selected: false,
-        },
-        {
-          photo: 'https://cdn.vseinstrumenti.ru/images/goods/stroitelnyj-instrument/generatory/1064774/560x504/53120475.jpg',
-          title: 'Бензиновый генератор DENZEL PS 80 E-3',
-          price: 57520,
-          amount: 1,
-          labels: '',
-          id: '34as',
-          selected: true,
-        },
-        {
-          photo: 'https://avtodeti.ru/f/tovar/avtokreslo/recaro/monza-nova-2-seatfix/select-teal-green/avtokreslo-recaro-monza-nova-2-seatfix-select-teal-green_l.jpg',
-          title: 'Recaro Monza Nova 2 Seatfix',
-          price: 32999,
-          amount: 1,
-          labels: '',
-          id: '56zx',
-          selected: false,
-        }
-      ]
+      address: '',
     }
   },
   computed: {
     ...mapGetters({
       cartProducts: 'cartProducts',
+      user: 'user',
+      cart: 'cart',
     }),
     totalPrice () {
       let price = 0;
@@ -255,13 +269,75 @@ export default {
       return price;
     }
   },
-  mounted () {
-    console.log(this.cartProducts);
+  watch: {
+    user: function (newVal) {
+      if (newVal?.id) {
+        this.address = '';
+
+        if (newVal.postcode) this.address += `${newVal.postcode}, `;
+        if (newVal.country) this.address += `${newVal.country}, `;
+        if (newVal.city) this.address += `${newVal.city}, `;
+        if (newVal.street) this.address += `${newVal.street}, `;
+        if (newVal.house) this.address += `${newVal.house}`;
+        if (newVal.building) this.address += `${newVal.building}`;
+      }
+    },
   },
+  mounted () {},
   methods: {
     ...mapActions({
       // addProductToCart: 'addProductToCart',
+      removeProductFromCart: 'removeProductFromCart',
+      setCartProductAmount: 'setCartProductAmount',
     }),
+    handleProductAmountInput(product) {
+      console.log('** handleProductAmountInput');
+      console.log(product);
+      this.setCartProductAmount(product);
+      this.updateCart();
+    },
+    handleRemoveClick (productId) {
+      console.log('** handleRemoveClick');
+      console.log(productId);
+
+      this.productToRemoveId = productId;
+      this.confirmRemoveDialog = true;
+    },
+    removeProduct () {
+      console.log('** removeProduct');
+      console.log(this.productToRemoveId);
+      this.removeProductFromCart(this.productToRemoveId);
+      this.confirmRemoveDialog = false;
+      this.updateCart();
+    },
+    async updateCart () {
+      const graphqlQuery = {
+        query: `
+          mutation {
+            updateCart (
+              where: {
+                id: "${this.cart.id}"
+              }
+              data: {
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
+                userId: "${this.user.id}"
+              }
+            ) {
+              id
+              products
+              userId
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Update cart response', response);
+    },
   }
 }
 </script>

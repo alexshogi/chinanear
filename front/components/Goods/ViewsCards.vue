@@ -16,62 +16,70 @@
         />
       </div>
     </div>
-    <div
+    <perfect-scrollbar
       v-else
-      class="goods-cards-container"
       :class="{ row: row }"
     >
       <div
-        v-for="item in data"
-        :key="item.id"
-        class="card-holder"
+        class="goods-cards-container"
+        :class="{ row: row }"
       >
-        <v-card
-          class="simple-goods-card"
-          flat
+        <div
+          v-for="item in data"
+          :key="item.id"
+          class="card-holder"
         >
-          <v-card-text
-            class="d-flex flex-column"
-            @click="openGoods(item.id)"
+          <v-card
+            class="simple-goods-card"
+            flat
           >
-            <div
-              class="goods-image mb-2"
-              :style="`background-image: url(${item.image?.url})`"
-            />
-            <span
-              class="goods-price-minmax mb-1"
+            <v-card-text
+              class="d-flex flex-column"
+              @click="openGoods(item.id)"
             >
-              ₽ {{ minPrice(item) }} - {{ maxPrice(item) }}
-            </span>
-            <span
-              class="goods-title"
-            >
-              {{ item.title }}
-            </span>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn
-              color="primary"
-              class="btn-common"
-              depressed
-              :disabled="isProductInCart(item)"
-              @click="addToCart(item)"
-            >
-              {{ isProductInCart(item) ? $t('in-cart') : $t('add-to-cart') }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+              <div
+                class="goods-image mb-2"
+                :style="`background-image: url(${item.image?.url})`"
+              />
+              <span
+                class="goods-price-minmax mb-1"
+              >
+                ₽ {{ minPrice(item) }} - {{ maxPrice(item) }}
+              </span>
+              <span
+                class="goods-title"
+              >
+                {{ item.title }}
+              </span>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn
+                color="primary"
+                class="btn-common"
+                depressed
+                :disabled="isProductInCart(item)"
+                @click="addToCart(item)"
+              >
+                {{ isProductInCart(item) ? $t('in-cart') : $t('add-to-cart') }}
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </div>
       </div>
-    </div>
+    </perfect-scrollbar>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import { PerfectScrollbar } from 'vue2-perfect-scrollbar';
 import text from '@/utils/mixins/text';
 
 export default {
   name: 'ViewsCards',
+  components: {
+    PerfectScrollbar
+  },
   mixins: [
     text
   ],
@@ -97,7 +105,8 @@ export default {
   computed: {
     ...mapGetters({
       cartProducts: 'cartProducts',
-      user: 'user'
+      user: 'user',
+      cart: 'cart',
     }),
   },
   methods: {
@@ -180,10 +189,11 @@ export default {
           mutation {
             updateCart (
               where: {
-                id: "clczunq5w0081qldu3pkjntr1"
+                id: "${this.cart.id}"
               }
               data: {
-                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}"
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
+                userId: "${this.user.id}"
               }
             ) {
               id
@@ -221,6 +231,39 @@ export default {
   }
 }
 </script>
+
+<style src="vue2-perfect-scrollbar/dist/vue2-perfect-scrollbar.css"/>
+
+<style>
+  .ps__rail-x,
+  .ps__rail-y {
+    display: none !important;
+  }
+
+  .ps.row {
+    height: 360px;
+  }
+
+  .ps.row .ps__rail-y {
+    display: none !important;
+  }
+
+  .ps.row .ps__rail-x {
+    display: block !important;
+    bottom: 0 !important;
+    height: 5px !important;
+    background-color: transparent !important;
+  }
+
+  .ps__rail-x:hover {
+    background-color: transparent !important;
+  }
+
+  .ps__thumb-x {
+    background-color: #FF9B00 !important;
+    height: 5px !important;
+  }
+</style>
 
 <style scoped>
   .v-card__actions {
@@ -269,8 +312,8 @@ export default {
     grid-template-columns: repeat(6, minmax(300px, 1fr)) !important;
     grid-template-rows: 370px;
     max-height: 370px;
-    overflow-y: hidden;
-    overflow-x: scroll;
+    // overflow-y: hidden;
+    // overflow-x: scroll;
   }
 }
 

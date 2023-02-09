@@ -9636,6 +9636,13 @@
   dependencies:
     "deepmerge" "^4.2.2"
 
+"vue-money-format@^1.2.4":
+  "integrity" "sha512-Y0/MmUc40JbPtjPh0R+8F7PihNEMeBsJDaU7y4jiYoLDzPXgk2kydeG+iKfHEKdnUvD8tbJQhBEl5J8o2AH7Ow=="
+  "resolved" "https://registry.npmjs.org/vue-money-format/-/vue-money-format-1.2.4.tgz"
+  "version" "1.2.4"
+  dependencies:
+    "vue" "^2.6.11"
+
 "vue-no-ssr@^1.1.1":
   "integrity" "sha512-ZMjqRpWabMPqPc7gIrG0Nw6vRf1+itwf0Itft7LbMXs2g3Zs/NFmevjZGN1x7K3Q95GmIjWbQZTVerxiBxI+0g=="
   "resolved" "https://registry.npmjs.org/vue-no-ssr/-/vue-no-ssr-1.1.1.tgz"

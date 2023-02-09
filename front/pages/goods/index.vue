@@ -11,14 +11,14 @@
           class="pa-4"
         >
           <div class="d-flex justify-space-between align-center pb-4">
-            <h1>Мои товары</h1>
+            <h1>{{ $t('my-goods') }}</h1>
             <v-btn
               color="primary"
               depressed
               style="letter-spacing: normal; width: 100%; color: #FFFFFF; font-weight: 600; font-size: 14px; line-height: 17px; padding: 20px; width: fit-content"
               @click="goToAdd"
             >
-              Добавить товар
+              {{ $t('create-product') }}
             </v-btn>
           </div>
 
@@ -33,7 +33,7 @@
                 outlined
                 height="38"
                 hide-details
-                placeholder="Поиск"
+                :placeholder="$t('search')"
                 append-icon="mdi-magnify"
               />
             </v-col>
@@ -140,7 +140,7 @@
                 v-slot:[`item.isActive`]="{ item }"
               >
                 <Label
-                  :value="item.isActive ? 'Активен' : 'Неактивен'"
+                  :value="item.isActive ? $t('active') : $t('inactive')"
                   :color="item.isActive ? 'green' : 'grey'"
                 />
               </template>
@@ -165,12 +165,12 @@ export default {
   data () {
     return {
       headers: [
-        { text: 'Товар', value: 'title' },
-        { text: 'Остаток', value: 'balance' },
-        { text: 'Категория', value: 'category1' },
-        { text: 'Создан/изменен', value: 'createdAt' },
-        { text: 'Активность', value: 'isActive' },
-        { text: 'Мин. стоимость', value: 'minPrice' }
+        { text: this.$t('product'), value: 'title' },
+        { text: this.$t('balance'), value: 'balance' },
+        { text: this.$t('category'), value: 'category1' },
+        { text: this.$t('created-changed'), value: 'createdAt' },
+        { text: this.$t('activity'), value: 'isActive' },
+        { text: this.$t('min-price'), value: 'minPrice' }
       ],
       products: [],
       searchValue: '',

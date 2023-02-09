@@ -14,7 +14,7 @@
           <h4
             style="text-transform: none; font-size: 18px; font-weight: 600; color: #474747; letter-spacing: normal;"
           >
-            {{ c.titleRu }}
+            {{ $i18n.locale === 'en' ? c.titleEn : c.titleRu }}
           </h4>
           <div
             class="cat-image"
