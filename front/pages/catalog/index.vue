@@ -56,6 +56,7 @@
                 :class="{ active: cat.selected }"
                 dense
                 style="color: #333333;"
+                @click="setCategory(cat.code)"
               >
                 <v-list-item-content>
                   <v-list-item-title>{{ $i18n.locale === 'en' ? cat.titleEn : cat.titleRu }}</v-list-item-title>
@@ -68,13 +69,13 @@
       <v-col cols="10">
         <ViewsCards
           v-if="showCards"
-          :data="goods"
+          :data="filteredGoods"
           :loading="loading"
           @open-goods="openGoodsItem"
         />
         <ViewsList
           v-else
-          :data="goods"
+          :data="filteredGoods"
           :loading="loading"
           @open-goods="openGoodsItem"
         />
@@ -137,6 +138,15 @@ export default {
       ],
     }
   },
+  computed: {
+    filteredGoods () {
+      if (this.category === 'all') {
+        return this.goods;
+      }
+
+      return this.goods.filter(g => g.category1 === this.category);
+    }
+  },
   async mounted () {
     this.category = this.$route.query?.category || 'all';
 
@@ -151,6 +161,19 @@ export default {
       this.setPaginationPage(pagination.page)
       this.setPaginationItemsPerPage(pagination.itemsPerPage)
       this.pagination = pagination
+    },
+    setCategory (code) {
+      this.category = code;
+
+      this.$router.push({
+        path: this.$route.path,
+        query: {
+          ...this.$route.query,
+          category: code
+        }
+      });
+
+      this.checkCategoryActive();
     },
     checkCategoryActive () {
       for (const cat of this.categories) {

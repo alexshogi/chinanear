@@ -1,17 +1,16 @@
 <template>
   <div>
     <div
-      v-if="loading"
+      v-if="loading || !data.length"
       class="goods-cards-container"
     >
       <div
-        v-for="item in 10"
-        :key="item"
-        class="card-holder"
+        style="width: 100%;"
+        class="d-flex justify-center pt-10"
       >
-        <v-skeleton-loader
-          type="image, list-item, card-heading, list-item-two-line"
-          class="simple-goods-card"
+        <v-progress-circular
+          indeterminate
+          color="primary"
         />
       </div>
     </div>
@@ -260,7 +259,7 @@ export default {
 }
 
 .card-holder {
-  height: 100%;
+  height: 200px;
   width: 100%;
   display: flex;
   justify-content: center;
