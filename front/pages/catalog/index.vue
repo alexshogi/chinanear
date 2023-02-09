@@ -5,14 +5,14 @@
     style="margin-top: 52px;"
   >
     <v-row>
-      <v-col cols="10" class="pb-0">
+      <!-- <v-col cols="10" class="pb-0">
         <v-breadcrumbs :items="breadcrumbs" class="pl-0">
           <template v-slot:divider>
             <v-icon>mdi-chevron-right</v-icon>
           </template>
         </v-breadcrumbs>
-      </v-col>
-      <v-col cols="2" class="pb-0 d-flex justify-center align-center">
+      </v-col> -->
+      <v-col cols="12" class="pb-0 d-flex justify-end align-center">
         <v-btn
           icon
           :color="showCards ? 'primary' : 'grey'"
@@ -57,7 +57,7 @@
                 style="color: #333333;"
               >
                 <v-list-item-content>
-                  <v-list-item-title>{{ cat.titleRu }}</v-list-item-title>
+                  <v-list-item-title>{{ $i18n.locale === 'en' ? cat.titleEn : cat.titleRu }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-card-text>
@@ -179,7 +179,7 @@ export default {
       });
 
       if (response?.data?.data?.products) {
-        this.goods = [...response.data.data.products];
+        this.goods = [...response.data.data.products.filter(p => p.isActive)];
       }
 
       this.loading = false;

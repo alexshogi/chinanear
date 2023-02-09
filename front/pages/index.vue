@@ -179,7 +179,7 @@ export default {
       });
 
       if (response?.data?.data?.products) {
-        this.goods = [...response.data.data.products];
+        this.goods = [...response.data.data.products.filter(p => p.isActive)];
       }
 
       this.loading = false;
