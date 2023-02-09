@@ -69,7 +69,8 @@
     "total-price": "Total price",
     "checkout": "Checkout",
     "currency": "Currency",
-    "not-a-public-offer": "Not a public offer"
+    "not-a-public-offer": "Not a public offer",
+    "categories": "Categories"
   },
   "ru": {
     "register-success-message": "Успешная регистрация. Переход на страницу входа...",
@@ -141,6 +142,7 @@
     "total-price": "Общая стоимость",
     "checkout": "Оформить заказ",
     "currency": "Валюта",
-    "not-a-public-offer": "Не является публичной офертой"
+    "not-a-public-offer": "Не является публичной офертой",
+    "categories": "Категории"
   }
 }

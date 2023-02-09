@@ -45,14 +45,15 @@
               <span
                 style="font-weight: 600; font-size: 14px; line-height: 19px; color: #848484; margin-top: 3px;"
               >
-                {{$t('product-categories')}}
+                {{$t('categories')}}
               </span>
             </v-card-title>
-            <v-card-text>
+            <v-card-text class="pa-0">
               <v-list-item
                 v-for="cat in categories"
                 :key="cat.id"
-                class="pa-0 category-item"
+                class="px-4 py-0 category-item"
+                :class="{ active: cat.selected }"
                 dense
                 style="color: #333333;"
               >
@@ -106,6 +107,7 @@ export default {
         titleRu: 'Все',
         titleEn: 'All'
       }],
+      category: '',
       showCards: true,
       showRows: false,
       loading: false,
@@ -136,6 +138,8 @@ export default {
     }
   },
   async mounted () {
+    this.category = this.$route.query?.category || 'all';
+
     this.getCats();
     this.getGoods();
   },
@@ -147,6 +151,15 @@ export default {
       this.setPaginationPage(pagination.page)
       this.setPaginationItemsPerPage(pagination.itemsPerPage)
       this.pagination = pagination
+    },
+    checkCategoryActive () {
+      for (const cat of this.categories) {
+        cat.selected = false;
+
+        if (cat.code === this.category) {
+          cat.selected = true;
+        }
+      }
     },
     async getGoods () {
       this.loading = true;
@@ -222,6 +235,8 @@ export default {
       }
 
       this.loading = false;
+
+      this.checkCategoryActive();
     },
     setPaginationPage (page) {
 
@@ -245,6 +260,12 @@ export default {
 
     :hover {
       color: #FF9B00;
+    }
+
+    &.active {
+      color: #ffffff !important;
+      background-color: #FF9B00;
+      pointer-events: none;
     }
   }
 </style>

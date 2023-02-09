@@ -34,7 +34,7 @@
     <v-row class="mt-4">
       <v-col cols="12">
         <NuxtLink
-          to="/catalog"
+          to="/catalog?category=all"
           style="text-decoration: none;"
         >
           <v-btn
@@ -93,7 +93,7 @@
     <v-row class="mt-4">
       <v-col cols="12">
         <NuxtLink
-          to="/catalog"
+          to="/catalog?category=all"
           style="text-decoration: none;"
         >
           <v-btn
