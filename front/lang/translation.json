@@ -71,7 +71,8 @@
     "currency": "Currency",
     "not-a-public-offer": "Not a public offer",
     "categories": "Categories",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "search-global": "Search global"
   },
   "ru": {
     "register-success-message": "Успешная регистрация. Переход на страницу входа...",
@@ -145,6 +146,7 @@
     "currency": "Валюта",
     "not-a-public-offer": "Не является публичной офертой",
     "categories": "Категории",
-    "cancel": "Отмена"
+    "cancel": "Отмена",
+    "search-global": "Глобальный поиск"
   }
 }

@@ -144,6 +144,15 @@
                   :color="item.isActive ? 'green' : 'grey'"
                 />
               </template>
+              <template
+                v-slot:[`item.minPrice`]="{ item }"
+              >
+                <money-format
+                  :value="item.minPrice"
+                  locale="ru"
+                  currency-code="rub"
+                />
+              </template>
             </v-data-table>
           </v-row>
         </v-card>
@@ -154,13 +163,14 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-
+import MoneyFormat from 'vue-money-format';
 import Label from '@/components/Label.vue';
 
 export default {
   name: 'GoodsPage',
   components: {
     Label,
+    'money-format': MoneyFormat,
   },
   data () {
     return {

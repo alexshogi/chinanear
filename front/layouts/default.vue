@@ -50,7 +50,6 @@
                     <span>Русский</span>
                     <v-icon>mdi-menu-down</v-icon>
                   </div>
-                  
                 </v-btn>
               </template>
               <v-list>
@@ -310,7 +309,7 @@
           dense
           height="38"
           hide-details
-          placeholder="Search global"
+          :placeholder="$t('search-global')"
           class="search-input"
         />
         <v-btn

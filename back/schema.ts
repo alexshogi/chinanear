@@ -145,7 +145,7 @@ export const lists: Lists = {
         isIndexed: 'unique',
       }),
       createdAt: timestamp({ defaultValue: { kind: 'now' } }),
-      updatedAt: timestamp({ defaultValue: { kind: 'now' } }),
+      updatedAt: timestamp(),
     }
   }),
 
@@ -158,7 +158,7 @@ export const lists: Lists = {
       titleEn: text(),
       titleCh: text(),
       createdAt: timestamp({ defaultValue: { kind: 'now' } }),
-      updatedAt: timestamp({ defaultValue: { kind: 'now' } }),
+      updatedAt: timestamp(),
     }
   }),
 
@@ -170,10 +170,11 @@ export const lists: Lists = {
       seller: relationship({ ref: 'User' }),
       status: relationship({ ref: 'OrderStatus' }),
       address: text(),
+      comment: text(),
       createdAt: timestamp({ defaultValue: { kind: 'now' } }),
-      updatedAt: timestamp({ defaultValue: { kind: 'now' } }),
-      confirmedAt: timestamp({ defaultValue: { kind: 'now' } }),
-      paidAt: timestamp({ defaultValue: { kind: 'now' } }),
+      updatedAt: timestamp(),
+      confirmedAt: timestamp(),
+      paidAt: timestamp(),
     }
   })
 };

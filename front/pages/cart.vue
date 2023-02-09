@@ -146,7 +146,11 @@
               <span
                 style="font-size: 11px; line-height: 16px; color: #9E9E9E;"
               >
-                {{ item.intervals[0]?.price }}
+                <money-format
+                  :value="getItemPrice(item)"
+                  locale="ru"
+                  currency-code="rub"
+                />
               </span>
             </v-col>
           </v-row>
@@ -188,7 +192,9 @@
             <v-btn
               color="headerOrange"
               depressed
+              :disabled="!cartProducts?.length || !address"
               style="letter-spacing: normal; width: 100%; color: #FFFFFF; font-weight: 700; font-size: 14px; line-height: 17px; padding: 20px;"
+              @click="checkout"
             >
               {{ $t('checkout') }}
             </v-btn>
@@ -337,6 +343,23 @@ export default {
       });
 
       console.log('Update cart response', response);
+    },
+    getItemPrice (item) {
+      console.log('** getItemPrice');
+      console.log(item);
+
+      let price = 0;
+
+      for (const interval of item.intervals) {
+        if (item.amount >= interval.from && item.amount <= interval.to) {
+          price = interval.price;
+        }
+      }
+
+      return price;
+    },
+    async checkout () {
+      console.log('** checkout');
     },
   }
 }
