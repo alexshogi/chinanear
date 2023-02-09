@@ -52,7 +52,7 @@
               <v-list-item
                 v-for="cat in categories"
                 :key="cat.id"
-                class="pa-0"
+                class="pa-0 category-item"
                 dense
                 style="color: #333333;"
               >
@@ -101,7 +101,11 @@ export default {
   },
   data () {
     return {
-      categories: [],
+      categories: [{
+        code: 'all',
+        titleRu: 'Все',
+        titleEn: 'All'
+      }],
       showCards: true,
       showRows: false,
       loading: false,
@@ -214,7 +218,7 @@ export default {
       });
 
       if (response?.data?.data?.categories) {
-        this.categories = [...response.data.data.categories];
+        this.categories = [...this.categories, ...response.data.data.categories];
       }
 
       this.loading = false;
@@ -228,3 +232,19 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+  .v-list-item__title, .v-list-item__subtitle {
+    overflow: unset;
+    text-overflow: unset;
+    white-space: unset;
+  }
+  .category-item {
+    cursor: pointer;
+    transition: all 0.28s;
+
+    :hover {
+      color: #FF9B00;
+    }
+  }
+</style>
