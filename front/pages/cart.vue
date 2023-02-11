@@ -232,6 +232,39 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-bottom-sheet v-model="bottomSheet">
+      <v-sheet
+        class="text-center pa-6"
+        height="200px"
+      >
+        <h2 class="py-4 mb-4">
+          Заказ успешно создан
+        </h2>
+        <NuxtLink
+          to="/orders"
+          style="text-decoration: none; font-size: 14px;"
+        >
+          <v-btn
+            text
+            class="mr-3"
+          >
+            Посмотреть заказ
+          </v-btn>
+        </NuxtLink>
+        <NuxtLink
+          to="/catalog?category=all"
+          style="text-decoration: none; font-size: 14px;"
+        >
+          <v-btn
+            text
+            class="ml-3"
+          >
+            Продолжить покупки
+          </v-btn>
+        </NuxtLink>
+      </v-sheet>
+    </v-bottom-sheet>
   </v-container>
 </template>
 
@@ -256,6 +289,7 @@ export default {
       comment: '',
       address: '',
       orderStatuses: [],
+      bottomSheet: false,
     }
   },
   computed: {
@@ -292,12 +326,23 @@ export default {
   },
   mounted () {
     this.getOrderStatuses();
+
+    if (this.user?.id) {
+      this.address = '';
+
+      if (this.user.postcode) this.address += `${this.user.postcode}, `;
+      if (this.user.country) this.address += `${this.user.country}, `;
+      if (this.user.city) this.address += `${this.user.city}, `;
+      if (this.user.street) this.address += `${this.user.street}, `;
+      if (this.user.house) this.address += `${this.user.house}`;
+      if (this.user.building) this.address += `${this.user.building}`;
+    }
   },
   methods: {
     ...mapActions({
-      // addProductToCart: 'addProductToCart',
       removeProductFromCart: 'removeProductFromCart',
       setCartProductAmount: 'setCartProductAmount',
+      clearCart: 'clearCart',
     }),
     handleProductAmountInput(product) {
       console.log('** handleProductAmountInput');
@@ -438,7 +483,10 @@ export default {
       console.log('Checkout response', response);
 
       if (response?.data?.data?.createOrder?.id) {
-        
+        this.clearCart();
+        this.updateCart();
+        this.createdOrderId = response.data.data.createOrder.id;
+        this.bottomSheet = true;
       }
     },
   }

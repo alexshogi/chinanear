@@ -43,6 +43,9 @@ const store = () => new Vuex.Store({
     REMOVE_PRODUCT_FROM_CART(state, productId) {
       state.cart.products = [ ...state.cart.products.filter(p => p.id !== productId) ];
     },
+    CLEAR_CART(state) {
+      state.cart.products = [];
+    },
     SET_CART_PRODUCT_AMOUNT(state, { id, amount }) {
       const product = state.cart.products.find(p => p.id === id);
       product.amount = amount;
@@ -76,6 +79,9 @@ const store = () => new Vuex.Store({
     },
     setCartProductAmount({ commit }, { id, amount }) {
       commit('SET_CART_PRODUCT_AMOUNT', { id, amount });
+    },
+    clearCart({ commit }) {
+      commit('CLEAR_CART');
     },
   },
 });
