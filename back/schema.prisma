@@ -87,7 +87,7 @@ model Cart {
   products  String    @default("")
   userId    String    @unique @default("")
   createdAt DateTime? @default(now())
-  updatedAt DateTime? @default(now())
+  updatedAt DateTime?
 }
 
 model OrderStatus {
@@ -98,7 +98,7 @@ model OrderStatus {
   titleEn           String    @default("")
   titleCh           String    @default("")
   createdAt         DateTime? @default(now())
-  updatedAt         DateTime? @default(now())
+  updatedAt         DateTime?
   from_Order_status Order[]   @relation("Order_status")
 }
 
@@ -112,10 +112,11 @@ model Order {
   status      OrderStatus? @relation("Order_status", fields: [statusId], references: [id])
   statusId    String?      @map("status")
   address     String       @default("")
+  comment     String       @default("")
   createdAt   DateTime?    @default(now())
-  updatedAt   DateTime?    @default(now())
-  confirmedAt DateTime?    @default(now())
-  paidAt      DateTime?    @default(now())
+  updatedAt   DateTime?
+  confirmedAt DateTime?
+  paidAt      DateTime?
 
   @@index([userId])
   @@index([sellerId])

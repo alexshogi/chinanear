@@ -255,6 +255,7 @@ export default {
       productToRemoveId: '',
       comment: '',
       address: '',
+      orderStatuses: [],
     }
   },
   computed: {
@@ -289,7 +290,9 @@ export default {
       }
     },
   },
-  mounted () {},
+  mounted () {
+    this.getOrderStatuses();
+  },
   methods: {
     ...mapActions({
       // addProductToCart: 'addProductToCart',
@@ -358,8 +361,85 @@ export default {
 
       return price;
     },
+    async getOrderStatuses () {
+      const graphqlQuery = {
+        query: `
+          query {
+            orderStatuses {
+              id
+              code
+              color
+              titleRu
+              titleEn
+              titleCh
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get order statuses response', response);
+
+      if (response?.data?.data?.orderStatuses) {
+        this.orderStatuses = [...response.data.data.orderStatuses];
+      }
+    },
     async checkout () {
       console.log('** checkout');
+
+      console.table(this.cartProducts);
+      console.log(this.address);
+      console.log(this.comment);
+      console.table(this.orderStatuses);
+
+      const orderStatusNew = this.orderStatuses.find(os => os.code === 'new');
+      console.log(orderStatusNew);
+
+      const graphqlQuery = {
+        query: `
+          mutation {
+            createOrder (
+              data: {
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
+                user: {
+                  connect: {
+                    id: "${this.user.id}"
+                  }
+                }
+                seller: {
+                  connect: {
+                    id: "${this.cartProducts[0].seller.id}"
+                  }
+                }
+                status: {
+                  connect: {
+                    id: "${orderStatusNew.id}"
+                  }
+                }
+                comment: "${this.comment}"
+                address: "${this.address}"
+              }
+            ) {
+              id
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Checkout response', response);
+
+      if (response?.data?.data?.createOrder?.id) {
+        
+      }
     },
   }
 }

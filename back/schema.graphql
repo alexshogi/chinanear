@@ -614,6 +614,7 @@ type Order {
   seller: User
   status: OrderStatus
   address: String
+  comment: String
   createdAt: DateTime
   updatedAt: DateTime
   confirmedAt: DateTime
@@ -633,6 +634,7 @@ input OrderWhereInput {
   seller: UserWhereInput
   status: OrderStatusWhereInput
   address: StringFilter
+  comment: StringFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
   confirmedAt: DateTimeNullableFilter
@@ -642,6 +644,7 @@ input OrderWhereInput {
 input OrderOrderByInput {
   id: OrderDirection
   address: OrderDirection
+  comment: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
   confirmedAt: OrderDirection
@@ -654,6 +657,7 @@ input OrderUpdateInput {
   seller: UserRelateToOneForUpdateInput
   status: OrderStatusRelateToOneForUpdateInput
   address: String
+  comment: String
   createdAt: DateTime
   updatedAt: DateTime
   confirmedAt: DateTime
@@ -677,6 +681,7 @@ input OrderCreateInput {
   seller: UserRelateToOneForCreateInput
   status: OrderStatusRelateToOneForCreateInput
   address: String
+  comment: String
   createdAt: DateTime
   updatedAt: DateTime
   confirmedAt: DateTime

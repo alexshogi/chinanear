@@ -204,6 +204,7 @@ export default {
               category2
               category3
               seller {
+                id
                 companyName
                 companyMarketNameRu
                 companyMarketNameEn
