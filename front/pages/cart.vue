@@ -210,9 +210,9 @@
     >
       <v-card>
         <v-card-title class="text-h5">
-          Confirmation
+          {{ $t('confirmation') }}
         </v-card-title>
-        <v-card-text>Are you sure you want to remove this item from your cart?</v-card-text>
+        <v-card-text>{{ $t('remove-item-cart-confirmation') }}</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -239,7 +239,7 @@
         height="200px"
       >
         <h2 class="py-4 mb-4">
-          Заказ успешно создан
+          {{ $t('order-created-success') }}
         </h2>
         <NuxtLink
           to="/orders"
@@ -249,7 +249,7 @@
             text
             class="mr-3"
           >
-            Посмотреть заказ
+            {{ $t('view-order') }}
           </v-btn>
         </NuxtLink>
         <NuxtLink
@@ -260,7 +260,7 @@
             text
             class="ml-3"
           >
-            Продолжить покупки
+            {{ $t('continue-shopping') }}
           </v-btn>
         </NuxtLink>
       </v-sheet>

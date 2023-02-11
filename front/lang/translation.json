@@ -72,7 +72,12 @@
     "not-a-public-offer": "Not a public offer",
     "categories": "Categories",
     "cancel": "Cancel",
-    "search-global": "Search global"
+    "search-global": "Search global",
+    "confirmation": "Confirmation",
+    "remove-item-cart-confirmation": "Are you sure you want to remove this item from your cart?",
+    "order-created-success": "Order successfully created",
+    "view-order": "View order",
+    "continue-shopping": "Continue shopping"
   },
   "ru": {
     "register-success-message": "Успешная регистрация. Переход на страницу входа...",
@@ -147,6 +152,11 @@
     "not-a-public-offer": "Не является публичной офертой",
     "categories": "Категории",
     "cancel": "Отмена",
-    "search-global": "Глобальный поиск"
+    "search-global": "Глобальный поиск",
+    "confirmation": "Подтверждение",
+    "remove-item-cart-confirmation": "Вы уверены, что хотите удалить этот товар из корзины?",
+    "order-created-success": "Заказ успешно создан",
+    "view-order": "Посмотреть заказ",
+    "continue-shopping": "Продолжить покупки"
   }
 }
