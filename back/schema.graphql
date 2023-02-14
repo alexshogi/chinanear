@@ -7,6 +7,7 @@ type User {
   email: String
   password: PasswordState
   surname: String
+  role: String
   companyName: String
   companyMarketNameRu: String
   companyMarketNameEn: String
@@ -43,6 +44,7 @@ input UserWhereInput {
   name: StringFilter
   email: StringFilter
   surname: StringFilter
+  role: StringFilter
   companyName: StringFilter
   companyMarketNameRu: StringFilter
   companyMarketNameEn: StringFilter
@@ -119,6 +121,7 @@ input UserOrderByInput {
   name: OrderDirection
   email: OrderDirection
   surname: OrderDirection
+  role: OrderDirection
   companyName: OrderDirection
   companyMarketNameRu: OrderDirection
   companyMarketNameEn: OrderDirection
@@ -142,6 +145,7 @@ input UserUpdateInput {
   email: String
   password: String
   surname: String
+  role: String
   companyName: String
   companyMarketNameRu: String
   companyMarketNameEn: String
@@ -174,6 +178,7 @@ input UserCreateInput {
   email: String
   password: String
   surname: String
+  role: String
   companyName: String
   companyMarketNameRu: String
   companyMarketNameEn: String

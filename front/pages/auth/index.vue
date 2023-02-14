@@ -161,6 +161,7 @@ export default {
                   name
                   email
                   surname
+                  role
                   companyName
                   companyMarketNameRu
                   companyMarketNameEn

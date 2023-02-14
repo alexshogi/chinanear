@@ -43,6 +43,7 @@ export const lists: Lists = {
       }),
       password: password({ validation: { isRequired: true } }),
       surname: text(),
+      role: text({ defaultValue: 'user' }),
       companyName: text(),
       companyMarketNameRu: text(),
       companyMarketNameEn: text(),
@@ -151,6 +152,10 @@ export const lists: Lists = {
 
   OrderStatus: list({
     access: allowAll,
+    ui: {
+      searchFields: ['code', 'titleEn'],
+      labelField: 'code',
+    },
     fields: {
       code: text(),
       color: text(),

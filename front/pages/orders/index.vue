@@ -54,10 +54,17 @@ export default {
       user: 'user'
     }),
     tabItems () {
+      if (this.user?.role === 'admin') {
+        return [
+          { tab: this.$t('i-buy'), content: 'OrdersCustomer' },
+          { tab: this.$t('i-sell'), content: 'OrdersSeller' },
+          { tab: this.$t('all'), content: 'OrdersAll' },
+        ]
+      }
+      
       return [
         { tab: this.$t('i-buy'), content: 'OrdersCustomer' },
         { tab: this.$t('i-sell'), content: 'OrdersSeller' },
-        { tab: this.$t('all'), content: 'OrdersAll' },
       ]
     },
   },

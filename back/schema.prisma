@@ -18,6 +18,7 @@ model User {
   email               String    @unique @default("")
   password            String
   surname             String    @default("")
+  role                String    @default("user")
   companyName         String    @default("")
   companyMarketNameRu String    @default("")
   companyMarketNameEn String    @default("")
