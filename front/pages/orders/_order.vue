@@ -13,14 +13,28 @@
           <div
             class="d-flex justify-start align-center mb-4"
           >
-            <h1 class="mr-8">Заказ № {{ orderId }}</h1>
-            <Label class="mr-8" value="Готов к отгрузке" />
+            <h1
+              class="mr-8"
+              @click="copyOrderIdToClipboard"
+            >
+              {{ $t('order') }}
+              №
+              {{ order.id }}
+            </h1>
+            <Label
+              v-if="order.status"
+              class="mr-8"
+              :value="$i18n.locale === 'ru' ? order.status.titleRu : order.status.titleEn"
+              :color="order.status?.color"
+            />
             <v-btn
+              v-if="order.status?.code !== 'canceled'"
               color="red"
               text
-              style="text-transform: none; letter-spacing: normal; padding: 0; width: fit-content; height: fit-content; font-size: 14px; line-height: 20px;"
+              style="text-transform: none; letter-spacing: normal; padding: 4px 8px; width: fit-content; height: fit-content; font-size: 14px; line-height: 20px;"
+              @click="confirmCancelOrder = true"
             >
-              Отменить заказ
+              {{ $t('cancel-order') }}
             </v-btn>
           </div>
 
@@ -31,17 +45,17 @@
             style="font-size: 16px;"
           >
             <v-col
-              cols="1"
+              cols="2"
               style="color: #9E9E9E;"
             >
-              Продавец:
+              {{ $t('seller') }}:
             </v-col>
-            <v-col cols="11">
+            <v-col cols="10">
               <NuxtLink
-                to="/"
+                to=""
                 style="text-decoration: none;"
               >
-                Cainiao Delivery-OD
+                {{ $i18n.locale === 'ru' ? order.seller?.companyMarketNameRu : order.seller?.companyMarketNameEn }}
               </NuxtLink>
             </v-col>
           </v-row>
@@ -51,147 +65,389 @@
             style="font-size: 16px;"
           >
             <v-col
-              cols="1"
+              cols="2"
               style="color: #9E9E9E;"
             >
-              Доставка:
+              {{ $t('delivery-address') }}:
             </v-col>
-            <v-col cols="11">
-              141282, Россия, Московская область, городской округ Пушкинский, Ивантеевка, Пионерская ул. 11
+            <v-col cols="10">
+              {{ order.address }}
             </v-col>
           </v-row>
 
           <div class="divider" />
 
-          <v-row
-            v-for="item in items"
-            :key="item.id"
-            class="order-item mt-2 mb-2"
+          <section
+            class="order-products"
           >
-            <v-col cols="1">
-              <div
-                class="item-image"
-                :style="`background-image: url(${item.photo})`"
-                alt="PHOTO"
-              />
-            </v-col>
-            <v-col
-              cols="5"
-              class="text-info"
+            <v-data-table
+              :headers="headers"
+              :items="order.products"
+              :items-per-page="10"
+              :loading="loading"
+              flat
+              style="width: 100%;"
             >
-              {{ item.title }}
-            </v-col>
-            <v-col
-              cols="2"
-              class="text-info"
+              <template
+                v-slot:[`item.image`]="{ item }"
+              >
+                <div
+                  class="item-image"
+                  :style="`background-image: url(${item.image?.url})`"
+                  alt="PHOTO"
+                />
+              </template>
+              <!-- <template
+                v-slot:[`item.title`]="{ item }"
+              >
+                <span></span>
+              </template> -->
+              <template
+                v-slot:[`item.price`]="{ item }"
+              >
+                <money-format
+                  :value="getItemPrice(item)"
+                  locale="ru"
+                  currency-code="rub"
+                />
+              </template>
+              <template
+                v-slot:[`item.sum`]="{ item }"
+              >
+                <money-format
+                  :value="getItemPrice(item) * item.amount"
+                  locale="ru"
+                  currency-code="rub"
+                />
+              </template>
+            </v-data-table>
+            <!-- <v-row
+              v-for="item in order.products"
+              :key="item.id"
+              class="order-item mt-2 mb-2"
             >
-              Стоимость: {{ item.price }} ₽
-            </v-col>
-            <v-col
-              cols="2"
-              class="text-info text-center"
-            >
-              Количество: {{ item.amount }} шт.
-            </v-col>
-            <v-col
-              cols="2"
-              class="text-info text-right pr-10"
-            >
-              {{ item.amount * item.price }} ₽
-            </v-col>
-          </v-row>
+              <v-col cols="1">
+                <div
+                  v-if="item.photo"
+                  class="item-image"
+                  :style="`background-image: url(${item.photo.url})`"
+                  alt="PHOTO"
+                />
+              </v-col>
+              <v-col
+                cols="5"
+                class="text-info"
+              >
+                {{ item.title }}
+              </v-col>
+              <v-col
+                cols="2"
+                class="text-info"
+              >
+                Стоимость: {{ item.price }} ₽
+              </v-col>
+              <v-col
+                cols="2"
+                class="text-info text-center"
+              >
+                Количество: {{ item.amount }} шт.
+              </v-col>
+              <v-col
+                cols="2"
+                class="text-info text-right pr-10"
+              >
+                {{ item.amount * item.price }} ₽
+              </v-col>
+            </v-row> -->
+          </section>
 
           <v-row>
             <v-col
               cols="12"
-              class="text-right pr-10"
+              class="text-right pr-10 pt-10"
             >
               <h2>
-                Стоимость заказа: {{ totalPrice }} ₽
+                {{ $t('order-sum') }}:
+                <money-format
+                  :value="orderSum"
+                  locale="ru"
+                  currency-code="rub"
+                  style="display: inline-block;"
+                />
               </h2>
             </v-col>
           </v-row>
 
           <v-row>
             <v-col cols="12">
-              <v-textarea
-                v-model="comment"
-                outlined
-                label="Комментарий к заказу"
-                class="mt-3"
-                style="font-size: 14px; line-height: 20px; color: #616161;"
-              />
+              <h4 class="mb-3">{{ $t('order-comment') }}</h4>
+              <p style="font-size: 14px; line-height: 20px; color: #616161;">
+                {{ order.comment }}
+              </p>
             </v-col>
           </v-row>
         </v-card>
       </v-col>
     </v-row>
+
+    <v-dialog
+      v-model="confirmCancelOrder"
+      persistent
+      max-width="300"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          {{ $t('confirmation') }}
+        </v-card-title>
+        <v-card-text>{{ $t('cancel-order-confirmation') }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="red darken-1"
+            text
+            @click="cancelOrder"
+          >
+            {{ $t('yes') }}
+          </v-btn>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="confirmCancelOrder = false"
+          >
+            {{ $t('no') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
-import Label from '@/components/Label.vue'
+import Label from '@/components/Label.vue';
+import MoneyFormat from 'vue-money-format';
 
 export default {
   name: 'OrderPage',
   components: {
     Label,
+    'money-format': MoneyFormat,
   },
   data () {
     return {
+      order: {},
+      loading: false,
       orderId: '',
-      comment: '',
-      items: [
-        {
-          photo: 'https://coffe-mashina.ru/image/cache/catalog/products/Philips/philips_ep1220_00_series_1200-767x767.jpg',
-          title: 'Автоматическая кофемашина Philips 1220 series',
-          price: 33800,
-          amount: 50,
-          labels: [],
-          id: '12qw',
-          selected: false,
-        },
-        {
-          photo: 'https://cdn.vseinstrumenti.ru/images/goods/stroitelnyj-instrument/generatory/1064774/560x504/53120475.jpg',
-          title: 'Бензиновый генератор DENZEL PS 80 E-3',
-          price: 57520,
-          amount: 50,
-          labels: '',
-          id: '34as',
-          selected: true,
-        },
-        {
-          photo: 'https://avtodeti.ru/f/tovar/avtokreslo/recaro/monza-nova-2-seatfix/select-teal-green/avtokreslo-recaro-monza-nova-2-seatfix-select-teal-green_l.jpg',
-          title: 'Recaro Monza Nova 2 Seatfix',
-          price: 32999,
-          amount: 10,
-          labels: '',
-          id: '56zx',
-          selected: false,
-        }
-      ]
+      confirmCancelOrder: false,
+      orderStatuses: [],
     }
   },
   computed: {
-    totalPrice () {
+    headers () {
+      return [
+        { text: '', value: 'image', sortable: false, width: 80 },
+        { text: this.$t('title'), value: 'title', sortable: false },
+        { text: this.$t('price'), value: 'price', sortable: false },
+        { text: this.$t('amount'), value: 'amount', sortable: false },
+        { text: this.$t('sum'), value: 'sum', sortable: false },
+      ]
+    },
+    orderSum () {
+      let sum = 0;
+
+      if (this.order.products) {
+        for (const item of this.order.products) {
+          sum += this.getItemPrice(item) * item.amount;
+        }
+      }
+
+      return sum;
+    },
+  },
+  mounted () {
+    console.log('**');
+    const orderId = this.$route.params.order;
+    console.log('orderId', orderId);
+    this.orderId = orderId;
+
+    this.getOrder();
+    this.getOrderStatuses();
+  },
+  methods: {
+    async getOrderStatuses () {
+      const graphqlQuery = {
+        query: `
+          query {
+            orderStatuses (
+              where: {}
+            ) {
+              id
+              titleRu
+              titleEn
+              titleCh
+              code
+              color
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get order statuses response', response);
+
+      const orderStatuses = response?.data?.data?.orderStatuses;
+
+      this.orderStatuses = orderStatuses;
+    },
+    async getOrder () {
+      this.loading = true;
+
+      const graphqlQuery = {
+        query: `
+          query {
+            order (
+              where: {
+                id: "${this.orderId}"
+              }
+            ) {
+              id
+              products
+              seller {
+                name
+                surname
+                companyName
+                companyMarketNameRu
+                companyMarketNameEn
+              }
+              status {
+                code
+                color
+                titleRu
+                titleEn
+                titleCh
+              }
+              address
+              comment
+              createdAt
+              updatedAt
+              confirmedAt
+              paidAt
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get order response', response);
+
+      const order = response?.data?.data?.order;
+
+      if (order) {
+        if (order.products) {
+          order.products = JSON.parse(order.products.replace(/'/g, '"'));
+        }
+
+        this.order = order;
+      }
+
+      this.loading = false;
+    },
+    getItemPrice (item) {
+      console.log('** getItemPrice');
+      console.log(item);
+
       let price = 0;
 
-      for (const item of this.items) {
-        price += item.price * item.amount;
+      for (const interval of item.intervals) {
+        if (item.amount >= interval.from && item.amount <= interval.to) {
+          price = interval.price;
+        }
       }
 
       return price;
+    },
+    async copyOrderIdToClipboard () {
+      try {
+        await navigator.clipboard.writeText(this.orderId);
+        console.log('Content copied to clipboard', this.orderId);
+      } catch (err) {
+        console.error('Failed to copy: ', err);
+      }
+    },
+    async cancelOrder () {
+      this.loading = true;
+
+      const cancelStatus = this.orderStatuses.find(status => status.code === 'cancel');
+
+      const graphqlQuery = {
+        query: `
+          mutation {
+            updateOrder (
+              where: {
+                id: "${this.order.id}"
+              }
+              data: {
+                status: {
+                  connect: {
+                    id: "${cancelStatus.id}"
+                  }
+                }
+              }
+            ) {
+              id
+              products
+              seller {
+                name
+                surname
+                companyName
+                companyMarketNameRu
+                companyMarketNameEn
+              }
+              status {
+                code
+                color
+                titleRu
+                titleEn
+                titleCh
+              }
+              address
+              comment
+              createdAt
+              updatedAt
+              confirmedAt
+              paidAt
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Cancel order response', response);
+
+      const order = response?.data?.data?.order;
+
+      if (order) {
+        if (order.products) {
+          order.products = JSON.parse(order.products.replace(/'/g, '"'));
+        }
+
+        this.order = order;
+      }
+
+      this.loading = false;
     }
-  },
-  created () {
-    console.log('**')
-
-    const orderId = this.$route.params.order
-
-    console.log('orderId', orderId)
-
-    this.orderId = orderId
-  },
+  }
 }
 </script>
 
@@ -211,27 +467,12 @@ export default {
       background-color: #E0E0E0;
     }
 
-    .order-item {
-      border-bottom: 1px solid #E0E0E0;
-
-      .text-info {
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 20px;
-        color: #424242;
-        padding: 8px;
-        padding-top: 16px;
-      }
-
-      .item-image {
-        width: 100px;
-        height: 100px;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        border: 1px solid #EEEEEE;
-        border-radius: 4px;
-      }
+    .item-image {
+      width: 60px;
+      height: 60px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
     }
   }
 </style>

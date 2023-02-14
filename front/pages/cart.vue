@@ -249,7 +249,7 @@
             text
             class="mr-3"
           >
-            {{ $t('view-order') }}
+            {{ $t('view-orders') }}
           </v-btn>
         </NuxtLink>
         <NuxtLink
@@ -553,6 +553,14 @@ export default {
       color: #757575;
     }
 
+    .item-image {
+      width: 100px;
+      height: 100px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
     .cart-item {
       border-bottom: 1px solid #E0E0E0;
 
@@ -568,16 +576,6 @@ export default {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-      }
-
-      .item-image {
-        width: 100px;
-        height: 100px;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        // border: 1px solid #EEEEEE;
-        border-radius: 4px;
       }
     }
   }

@@ -132,6 +132,15 @@
               style="width: 100%;"
             >
               <template
+                v-slot:[`item.image`]="{ item }"
+              >
+                <div
+                  class="item-image"
+                  :style="`background-image: url(${item.image?.url})`"
+                  alt="PHOTO"
+                />
+              </template>
+              <template
                 v-slot:[`item.createdAt`]="{ item }"
               >
                 <span>{{ item.createdAt | datetime }}</span>
@@ -174,14 +183,6 @@ export default {
   },
   data () {
     return {
-      headers: [
-        { text: this.$t('product'), value: 'title' },
-        { text: this.$t('balance'), value: 'balance' },
-        { text: this.$t('category'), value: 'category1' },
-        { text: this.$t('created-changed'), value: 'createdAt' },
-        { text: this.$t('activity'), value: 'isActive' },
-        { text: this.$t('min-price'), value: 'minPrice' }
-      ],
       products: [],
       searchValue: '',
       statuses: [
@@ -220,6 +221,17 @@ export default {
     ...mapGetters({
       user: 'user'
     }),
+    headers () {
+      return [
+        { text: '', value: 'image', width: 80 },
+        { text: this.$t('product'), value: 'title' },
+        { text: this.$t('balance'), value: 'balance' },
+        { text: this.$t('category'), value: 'category1' },
+        { text: this.$t('created-changed'), value: 'createdAt' },
+        { text: this.$t('activity'), value: 'isActive' },
+        { text: this.$t('min-price'), value: 'minPrice' }
+      ]
+    },
     filteredProducts () {
       if (this.searchValue) {
         return this.products.filter(p => p.title.toLowerCase().includes(this.searchValue.toLowerCase()));
@@ -394,16 +406,14 @@ export default {
         flex-direction: column;
         justify-content: space-between;
       }
+    }
 
-      .item-image {
-        width: 100px;
-        height: 100px;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        border: 1px solid #EEEEEE;
-        border-radius: 4px;
-      }
+    .item-image {
+      width: 60px;
+      height: 60px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
     }
   }
 </style>

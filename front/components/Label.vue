@@ -33,6 +33,8 @@ export default {
           return '#B4CD0F';
         case 'grey':
           return '#BDBDBD';
+        case 'teal':
+          return '#47b8d1';
         default:
           return '#272727';
       }
