@@ -134,7 +134,7 @@
             </p>
             <p class="text-center">
               <NuxtLink
-                to="/"
+                :to="`/chat?item=${item.id}`"
                 style="text-decoration: none; font-size: 12px; line-height: 16px;"
               >
                 {{ $t('chat-with-seller') }}

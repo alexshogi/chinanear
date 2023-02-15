@@ -13,27 +13,29 @@ generator client {
 }
 
 model User {
-  id                  String    @id @default(cuid())
-  name                String    @default("")
-  email               String    @unique @default("")
-  password            String
-  surname             String    @default("")
-  role                String    @default("user")
-  companyName         String    @default("")
-  companyMarketNameRu String    @default("")
-  companyMarketNameEn String    @default("")
-  postcode            String    @default("")
-  country             String    @default("")
-  city                String    @default("")
-  street              String    @default("")
-  house               String    @default("")
-  building            String    @default("")
-  productsCreated     Product[] @relation("Product_author")
-  productsSelling     Product[] @relation("Product_seller")
-  createdAt           DateTime? @default(now())
-  updatedAt           DateTime? @default(now())
-  from_Order_user     Order[]   @relation("Order_user")
-  from_Order_seller   Order[]   @relation("Order_seller")
+  id                      String        @id @default(cuid())
+  name                    String        @default("")
+  email                   String        @unique @default("")
+  password                String
+  surname                 String        @default("")
+  role                    String        @default("user")
+  companyName             String        @default("")
+  companyMarketNameRu     String        @default("")
+  companyMarketNameEn     String        @default("")
+  postcode                String        @default("")
+  country                 String        @default("")
+  city                    String        @default("")
+  street                  String        @default("")
+  house                   String        @default("")
+  building                String        @default("")
+  productsCreated         Product[]     @relation("Product_author")
+  productsSelling         Product[]     @relation("Product_seller")
+  createdAt               DateTime?     @default(now())
+  updatedAt               DateTime?     @default(now())
+  from_Order_user         Order[]       @relation("Order_user")
+  from_Order_seller       Order[]       @relation("Order_seller")
+  from_ChatRoom_users     ChatRoom[]    @relation("ChatRoom_users")
+  from_ChatMessage_sender ChatMessage[] @relation("ChatMessage_sender")
 }
 
 model Product {
@@ -122,4 +124,31 @@ model Order {
   @@index([userId])
   @@index([sellerId])
   @@index([statusId])
+}
+
+model ChatRoom {
+  id                    String        @id @default(cuid())
+  roomName              String        @default("")
+  users                 User[]        @relation("ChatRoom_users")
+  from_ChatMessage_room ChatMessage[] @relation("ChatMessage_room")
+}
+
+model ChatMessage {
+  id               String    @id @default(cuid())
+  content          String    @default("")
+  room             ChatRoom? @relation("ChatMessage_room", fields: [roomId], references: [id])
+  roomId           String?   @map("room")
+  sender           User?     @relation("ChatMessage_sender", fields: [senderId], references: [id])
+  senderId         String?   @map("sender")
+  date             DateTime? @default(now())
+  system           Boolean   @default(false)
+  saved            Boolean   @default(false)
+  distributed      Boolean   @default(true)
+  seen             Boolean   @default(true)
+  deleted          Boolean   @default(false)
+  disableActions   Boolean   @default(true)
+  disableReactions Boolean   @default(true)
+
+  @@index([roomId])
+  @@index([senderId])
 }

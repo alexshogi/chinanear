@@ -181,5 +181,30 @@ export const lists: Lists = {
       confirmedAt: timestamp(),
       paidAt: timestamp(),
     }
+  }),
+
+  ChatRoom: list({
+    access: allowAll,
+    fields: {
+      roomName: text(),
+      users: relationship({ ref: 'User', many: true }),
+    },
+  }),
+
+  ChatMessage: list({
+    access: allowAll,
+    fields: {
+      content: text(),
+      room: relationship({ ref: 'ChatRoom' }),
+      sender: relationship({ ref: 'User' }),
+      date: timestamp({ defaultValue: { kind: 'now' } }),
+      system: checkbox({ defaultValue: false }),
+      saved: checkbox({ defaultValue: false }),
+      distributed: checkbox({ defaultValue: true }),
+      seen: checkbox({ defaultValue: true }),
+      deleted: checkbox({ defaultValue: false }),
+      disableActions: checkbox({ defaultValue: true }),
+      disableReactions: checkbox({ defaultValue: true }),
+    }
   })
 };

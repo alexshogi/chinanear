@@ -24,7 +24,7 @@
     "showdown": "1.9.1",
     "slate-vue": "^0.2.0",
     "vue": "^2.7.10",
-    "vue-advanced-chat": "^2.0.6",
+    "vue-advanced-chat": "1.2.0",
     "vue-money-format": "^1.2.4",
     "vue-picture-input": "^2.4.0",
     "vue-server-renderer": "^2.7.10",

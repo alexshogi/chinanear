@@ -698,6 +698,158 @@ input OrderStatusRelateToOneForCreateInput {
   connect: OrderStatusWhereUniqueInput
 }
 
+type ChatRoom {
+  id: ID!
+  roomName: String
+  users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0): [User!]
+  usersCount(where: UserWhereInput! = {}): Int
+}
+
+input ChatRoomWhereUniqueInput {
+  id: ID
+}
+
+input ChatRoomWhereInput {
+  AND: [ChatRoomWhereInput!]
+  OR: [ChatRoomWhereInput!]
+  NOT: [ChatRoomWhereInput!]
+  id: IDFilter
+  roomName: StringFilter
+  users: UserManyRelationFilter
+}
+
+input UserManyRelationFilter {
+  every: UserWhereInput
+  some: UserWhereInput
+  none: UserWhereInput
+}
+
+input ChatRoomOrderByInput {
+  id: OrderDirection
+  roomName: OrderDirection
+}
+
+input ChatRoomUpdateInput {
+  roomName: String
+  users: UserRelateToManyForUpdateInput
+}
+
+input UserRelateToManyForUpdateInput {
+  disconnect: [UserWhereUniqueInput!]
+  set: [UserWhereUniqueInput!]
+  create: [UserCreateInput!]
+  connect: [UserWhereUniqueInput!]
+}
+
+input ChatRoomUpdateArgs {
+  where: ChatRoomWhereUniqueInput!
+  data: ChatRoomUpdateInput!
+}
+
+input ChatRoomCreateInput {
+  roomName: String
+  users: UserRelateToManyForCreateInput
+}
+
+input UserRelateToManyForCreateInput {
+  create: [UserCreateInput!]
+  connect: [UserWhereUniqueInput!]
+}
+
+type ChatMessage {
+  id: ID!
+  content: String
+  room: ChatRoom
+  sender: User
+  date: DateTime
+  system: Boolean
+  saved: Boolean
+  distributed: Boolean
+  seen: Boolean
+  deleted: Boolean
+  disableActions: Boolean
+  disableReactions: Boolean
+}
+
+input ChatMessageWhereUniqueInput {
+  id: ID
+}
+
+input ChatMessageWhereInput {
+  AND: [ChatMessageWhereInput!]
+  OR: [ChatMessageWhereInput!]
+  NOT: [ChatMessageWhereInput!]
+  id: IDFilter
+  content: StringFilter
+  room: ChatRoomWhereInput
+  sender: UserWhereInput
+  date: DateTimeNullableFilter
+  system: BooleanFilter
+  saved: BooleanFilter
+  distributed: BooleanFilter
+  seen: BooleanFilter
+  deleted: BooleanFilter
+  disableActions: BooleanFilter
+  disableReactions: BooleanFilter
+}
+
+input ChatMessageOrderByInput {
+  id: OrderDirection
+  content: OrderDirection
+  date: OrderDirection
+  system: OrderDirection
+  saved: OrderDirection
+  distributed: OrderDirection
+  seen: OrderDirection
+  deleted: OrderDirection
+  disableActions: OrderDirection
+  disableReactions: OrderDirection
+}
+
+input ChatMessageUpdateInput {
+  content: String
+  room: ChatRoomRelateToOneForUpdateInput
+  sender: UserRelateToOneForUpdateInput
+  date: DateTime
+  system: Boolean
+  saved: Boolean
+  distributed: Boolean
+  seen: Boolean
+  deleted: Boolean
+  disableActions: Boolean
+  disableReactions: Boolean
+}
+
+input ChatRoomRelateToOneForUpdateInput {
+  create: ChatRoomCreateInput
+  connect: ChatRoomWhereUniqueInput
+  disconnect: Boolean
+}
+
+input ChatMessageUpdateArgs {
+  where: ChatMessageWhereUniqueInput!
+  data: ChatMessageUpdateInput!
+}
+
+input ChatMessageCreateInput {
+  content: String
+  room: ChatRoomRelateToOneForCreateInput
+  sender: UserRelateToOneForCreateInput
+  date: DateTime
+  system: Boolean
+  saved: Boolean
+  distributed: Boolean
+  seen: Boolean
+  deleted: Boolean
+  disableActions: Boolean
+  disableReactions: Boolean
+}
+
+input ChatRoomRelateToOneForCreateInput {
+  create: ChatRoomCreateInput
+  connect: ChatRoomWhereUniqueInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -746,6 +898,18 @@ type Mutation {
   updateOrders(data: [OrderUpdateArgs!]!): [Order]
   deleteOrder(where: OrderWhereUniqueInput!): Order
   deleteOrders(where: [OrderWhereUniqueInput!]!): [Order]
+  createChatRoom(data: ChatRoomCreateInput!): ChatRoom
+  createChatRooms(data: [ChatRoomCreateInput!]!): [ChatRoom]
+  updateChatRoom(where: ChatRoomWhereUniqueInput!, data: ChatRoomUpdateInput!): ChatRoom
+  updateChatRooms(data: [ChatRoomUpdateArgs!]!): [ChatRoom]
+  deleteChatRoom(where: ChatRoomWhereUniqueInput!): ChatRoom
+  deleteChatRooms(where: [ChatRoomWhereUniqueInput!]!): [ChatRoom]
+  createChatMessage(data: ChatMessageCreateInput!): ChatMessage
+  createChatMessages(data: [ChatMessageCreateInput!]!): [ChatMessage]
+  updateChatMessage(where: ChatMessageWhereUniqueInput!, data: ChatMessageUpdateInput!): ChatMessage
+  updateChatMessages(data: [ChatMessageUpdateArgs!]!): [ChatMessage]
+  deleteChatMessage(where: ChatMessageWhereUniqueInput!): ChatMessage
+  deleteChatMessages(where: [ChatMessageWhereUniqueInput!]!): [ChatMessage]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -790,6 +954,12 @@ type Query {
   orders(where: OrderWhereInput! = {}, orderBy: [OrderOrderByInput!]! = [], take: Int, skip: Int! = 0): [Order!]
   order(where: OrderWhereUniqueInput!): Order
   ordersCount(where: OrderWhereInput! = {}): Int
+  chatRooms(where: ChatRoomWhereInput! = {}, orderBy: [ChatRoomOrderByInput!]! = [], take: Int, skip: Int! = 0): [ChatRoom!]
+  chatRoom(where: ChatRoomWhereUniqueInput!): ChatRoom
+  chatRoomsCount(where: ChatRoomWhereInput! = {}): Int
+  chatMessages(where: ChatMessageWhereInput! = {}, orderBy: [ChatMessageOrderByInput!]! = [], take: Int, skip: Int! = 0): [ChatMessage!]
+  chatMessage(where: ChatMessageWhereUniqueInput!): ChatMessage
+  chatMessagesCount(where: ChatMessageWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }
