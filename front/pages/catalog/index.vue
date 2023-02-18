@@ -198,6 +198,12 @@ export default {
               image {
                 url
               }
+              titleRu
+              titleEn
+              titleCh
+              captionRu
+              captionEn
+              captionCh
               isActive
               intervals
               category1

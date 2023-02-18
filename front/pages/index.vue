@@ -154,6 +154,21 @@ export default {
               id
               title
               caption
+              titleRu
+              titleEn
+              titleCh
+              captionRu
+              captionEn
+              captionCh
+              descriptionRu {
+                document
+              }
+              descriptionEn {
+                document
+              }
+              descriptionCh {
+                document
+              }
               balance
               image {
                 url
