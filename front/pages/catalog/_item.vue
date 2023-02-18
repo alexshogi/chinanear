@@ -108,11 +108,13 @@
           <v-row class="mb-4">
             <v-col>
               <h2 class="mb-4 text-center">{{$t('product-information')}}</h2>
-              <client-only v-if="description">
+              <!-- <client-only v-if="description">
                 <Slate :value="description">
                   <Editable readOnly></Editable>
                 </Slate>
-              </client-only>
+              </client-only> -->
+
+              <Editor text="Hello bitch" />
             </v-col>
           </v-row>
         </v-card>
@@ -134,7 +136,7 @@
             </p>
             <p class="text-center">
               <NuxtLink
-                :to="`/chat?item=${item.id}`"
+                :to="`/chat?seller=${item.seller?.id}`"
                 style="text-decoration: none; font-size: 12px; line-height: 16px;"
               >
                 {{ $t('chat-with-seller') }}
@@ -161,15 +163,14 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { PerfectScrollbar } from 'vue2-perfect-scrollbar';
-import { Slate, Editable } from 'slate-vue';
+import Editor from '@/components/Editor';
 
 export default {
   auth: false,
   name: 'ItemPage',
   components: {
     PerfectScrollbar,
-    Slate,
-    Editable,
+    Editor,
   },
   data () {
     return {

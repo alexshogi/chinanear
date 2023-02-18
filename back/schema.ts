@@ -188,6 +188,10 @@ export const lists: Lists = {
     fields: {
       roomName: text(),
       users: relationship({ ref: 'User', many: true }),
+      buyer_seller: text({
+        validation: { isRequired: true },
+        isIndexed: 'unique',
+      }),
     },
   }),
 

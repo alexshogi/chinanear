@@ -3,7 +3,7 @@
     <v-system-bar
       height="40"
       fixed
-      style="background-color: #EEEEEE;"
+      style="background-color: #EEEEEE; z-index: 15000;"
     >
       <v-container
         v-if="!$route?.name?.includes('register') && !$route?.name?.includes('auth')"
@@ -292,7 +292,7 @@
       app
       elevation="1"
       fixed
-      style="height: 88px; transform: translateY(40px);"
+      style="height: 88px; transform: translateY(40px); z-index: 15000;"
       :style="{background: $vuetify.theme.themes[theme].headerBackground}"
     >
       <v-container

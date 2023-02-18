@@ -42,6 +42,7 @@ export default {
       loadingRooms: false,
       messages: [],
       rooms: [],
+      sellerId: null,
     }
   },
   computed: {
@@ -52,11 +53,10 @@ export default {
       return this.user?.id;
     },
   },
-  created() {
-    const itemId = this.$route.query.item;
-    const orderId = this.$route.query.order;
+  created () {
+    const sellerId = this.$route.query.seller;
 
-    console.log(itemId, orderId);
+    this.sellerId = sellerId;
   },
   async mounted () {
     const auth = localStorage.getItem('auth');
@@ -66,6 +66,10 @@ export default {
     }
 
     this.getRooms();
+
+    if (this.sellerId) {
+      this.checkRoomExistance();
+    }
   },
   methods: {
     ...mapActions({
@@ -77,7 +81,45 @@ export default {
     getTime (date) {
       return format(new Date(date), 'HH:mm');
     },
-    async createRoom (name, users) {
+    async checkRoomExistance () {
+      const graphqlQuery = {
+        query: `
+          query {
+            chatRoom(
+              where: {
+                buyer_seller: "${this.currentUserId}_${this.sellerId}"
+              }
+            ) {
+              id
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Check room response', response);
+
+      const chatRoom = response?.data?.data?.chatRoom;
+
+      if (chatRoom) {
+
+      } else {
+        this.createRoom();
+      }
+    },
+    async getSeller () {
+      
+    },
+    async generateRoomName () {
+      const seller = await this.getSeller();
+
+      return `${seller.name} ${seller.surname} / ${this.user.name} ${this.user.surname}`;
+    },
+    async createRoom (name, buyer, seller) {
       const graphqlQuery = {
         query: `
           mutation {
@@ -85,8 +127,12 @@ export default {
               data: {
                 roomName: "${name}"
                 users: {
-                  connect: ${users}
+                  connect: [
+                    { id: "${buyer.id}" }
+                    { id: "${seller.id}" }
+                  ]
                 }
+                buyer_seller: "${this.currentUserId}_${this.sellerId}"
               }
             ) {
               id

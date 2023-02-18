@@ -130,6 +130,7 @@ model ChatRoom {
   id                    String        @id @default(cuid())
   roomName              String        @default("")
   users                 User[]        @relation("ChatRoom_users")
+  buyer_seller          String        @unique @default("")
   from_ChatMessage_room ChatMessage[] @relation("ChatMessage_room")
 }
 

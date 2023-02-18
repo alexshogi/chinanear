@@ -52,7 +52,7 @@
             </v-col>
             <v-col cols="10">
               <NuxtLink
-                :to="`/chat?order=${order.id}`"
+                :to="`/chat?seller=${order.seller?.id}`"
                 style="text-decoration: none;"
               >
                 {{ $i18n.locale === 'ru' ? order.seller?.companyMarketNameRu : order.seller?.companyMarketNameEn }}
@@ -316,6 +316,7 @@ export default {
               id
               products
               seller {
+                id
                 name
                 surname
                 companyName

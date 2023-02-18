@@ -24,7 +24,7 @@ export default {
   css: [],
   plugins: [
     '~/plugins/assets.js',
-    '~/plugins/vue-slate.js'
+    { src: '~/plugins/TiptapVuetify', mode: 'client' },
   ],
   components: true,
   // target: 'server',
@@ -92,6 +92,6 @@ export default {
     }
   },
   build: {
-    transpile: ['slate-vue', 'vue-tsx-support']
+    transpile: ['vuetify/lib', 'tiptap-vuetify']
   }
 }

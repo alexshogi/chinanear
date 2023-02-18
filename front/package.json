@@ -22,7 +22,7 @@
     "nuxt-i18n": "^6.27.1",
     "sanitize-html": "2.7.0",
     "showdown": "1.9.1",
-    "slate-vue": "^0.2.0",
+    "tiptap-vuetify": "^2.11.1",
     "vue": "^2.7.10",
     "vue-advanced-chat": "1.2.0",
     "vue-money-format": "^1.2.4",

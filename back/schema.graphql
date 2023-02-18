@@ -703,10 +703,12 @@ type ChatRoom {
   roomName: String
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0): [User!]
   usersCount(where: UserWhereInput! = {}): Int
+  buyer_seller: String
 }
 
 input ChatRoomWhereUniqueInput {
   id: ID
+  buyer_seller: String
 }
 
 input ChatRoomWhereInput {
@@ -716,6 +718,7 @@ input ChatRoomWhereInput {
   id: IDFilter
   roomName: StringFilter
   users: UserManyRelationFilter
+  buyer_seller: StringFilter
 }
 
 input UserManyRelationFilter {
@@ -727,11 +730,13 @@ input UserManyRelationFilter {
 input ChatRoomOrderByInput {
   id: OrderDirection
   roomName: OrderDirection
+  buyer_seller: OrderDirection
 }
 
 input ChatRoomUpdateInput {
   roomName: String
   users: UserRelateToManyForUpdateInput
+  buyer_seller: String
 }
 
 input UserRelateToManyForUpdateInput {
@@ -749,6 +754,7 @@ input ChatRoomUpdateArgs {
 input ChatRoomCreateInput {
   roomName: String
   users: UserRelateToManyForCreateInput
+  buyer_seller: String
 }
 
 input UserRelateToManyForCreateInput {

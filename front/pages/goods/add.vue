@@ -82,12 +82,12 @@
               class="d-flex align-center"
             >
               <img
-                width="48px"
-                height="32px"
+                width="22px"
+                height="17px"
                 src="../../static/flag_ru.png"
                 alt="RU"
                 class="mr-3"
-                style="box-shadow: 0 0 3px 1px #d5d5d5;"
+                style="box-shadow: 0 0 2px 2px #d5d5d5;"
               >
               RU
             </v-col>
@@ -95,7 +95,7 @@
               cols="11"
             >
               <v-text-field
-                v-model="title"
+                v-model="titleRu"
                 label="Наименование товара на русском языке"
                 dense
                 hide-details
@@ -109,12 +109,120 @@
               cols="12"
             >
               <v-text-field
-                v-model="caption"
+                v-model="captionRu"
                 label="Краткое описание товара на русском языке"
                 dense
                 hide-details
                 outlined
               />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              cols="12"
+            >
+              <Editor text="Hello bitch" />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              cols="1"
+              class="d-flex align-center"
+            >
+              <img
+                width="22px"
+                height="16px"
+                src="../../static/flag_en.png"
+                alt="GB"
+                class="mr-3"
+                style="box-shadow: 0 0 5px 2px #d5d5d5;"
+              >
+              GB
+            </v-col>
+            <v-col
+              cols="11"
+            >
+              <v-text-field
+                v-model="titleEn"
+                label="Product name in English"
+                dense
+                hide-details
+                outlined
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              cols="12"
+            >
+              <v-text-field
+                v-model="captionEn"
+                label="Brief product description in English"
+                dense
+                hide-details
+                outlined
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              cols="12"
+            >
+              <Editor text="Hello bitch" />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              cols="1"
+              class="d-flex align-center"
+            >
+              <img
+                width="25px"
+                height="16px"
+                src="../../static/flag_ch.png"
+                alt="CH"
+                class="mr-3"
+                style="box-shadow: 0 0 5px 2px #d5d5d5;"
+              >
+              CH
+            </v-col>
+            <v-col
+              cols="11"
+            >
+              <v-text-field
+                v-model="titleCh"
+                label="中文產品名稱"
+                dense
+                hide-details
+                outlined
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              cols="12"
+            >
+              <v-text-field
+                v-model="captionCh"
+                label="中文產品簡介"
+                dense
+                hide-details
+                outlined
+              />
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col
+              cols="12"
+            >
+              <Editor text="Hello bitch" />
             </v-col>
           </v-row>
         </v-card>
@@ -124,21 +232,29 @@
 </template>
 
 <script>
-import PictureInput from '@/components/PictureInput.vue'
+import PictureInput from '@/components/PictureInput.vue';
+import Editor from '@/components/Editor';
 
 export default {
   name: 'GoodsPage',
   components: {
-    PictureInput
+    PictureInput,
+    Editor,
   },
   data () {
     return {
       image: null,
       images: [],
       imageIndex: 0,
-      title: '',
-      caption: '',
-      description: '',
+      titleRu: '',
+      titleEn: '',
+      titleCh: '',
+      captionRu: '',
+      captionEn: '',
+      captionCh: '',
+      descriptionRu: '',
+      descriptionEn: '',
+      descriptionCh: '',
     }
   },
   methods: {
