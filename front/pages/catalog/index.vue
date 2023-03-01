@@ -6,7 +6,6 @@
   >
     <v-row>
       <v-col cols="12" class="pb-0 d-flex justify-end align-center">
-        {{ category }}
         <v-btn
           icon
           :color="showCards ? 'primary' : 'grey'"
@@ -108,14 +107,14 @@ export default {
   data () {
     return {
       categories: [{
-        id: 1,
+        id: 'all',
         code: 'all',
         titleRu: 'Все',
         titleEn: 'All',
         titleCh: 'All'
       }],
       category: '',
-      active: [{ id: 1 }],
+      active: [{ id: 'all' }],
       showCards: true,
       showRows: false,
       loading: false,
@@ -138,7 +137,7 @@ export default {
     }
   },
   async mounted () {
-    this.category = 'all';
+    this.category = this.$route.query?.category || 'all';
 
     await this.getCats();
     await this.getGoods();
@@ -151,6 +150,17 @@ export default {
       this.setPaginationPage(pagination.page)
       this.setPaginationItemsPerPage(pagination.itemsPerPage)
       this.pagination = pagination
+    },
+    checkActiveCat () {
+      if (this.category === 'all') {
+        return
+      }
+
+      const cat = this.categories.find(c => c.code === this.category);
+
+      if (cat) {
+        this.active = [{ id: cat.id, code: cat.code }];
+      }
     },
     setActiveCat (cat) {
       const { code, id } = cat[0];
@@ -281,6 +291,8 @@ export default {
       }
 
       this.loading = false;
+
+      this.checkActiveCat();
     },
     setPaginationPage (page) {
 
