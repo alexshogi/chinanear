@@ -5,14 +5,8 @@
     style="margin-top: 52px;"
   >
     <v-row>
-      <!-- <v-col cols="10" class="pb-0">
-        <v-breadcrumbs :items="breadcrumbs" class="pl-0">
-          <template v-slot:divider>
-            <v-icon>mdi-chevron-right</v-icon>
-          </template>
-        </v-breadcrumbs>
-      </v-col> -->
       <v-col cols="12" class="pb-0 d-flex justify-end align-center">
+        {{ category }}
         <v-btn
           icon
           :color="showCards ? 'primary' : 'grey'"
@@ -49,7 +43,7 @@
               </span>
             </v-card-title>
             <v-card-text class="pa-0">
-              <v-list-item
+              <!-- <v-list-item
                 v-for="cat in categories"
                 :key="cat.id"
                 class="px-4 py-0 category-item"
@@ -61,7 +55,17 @@
                 <v-list-item-content>
                   <v-list-item-title>{{ $i18n.locale === 'en' ? cat.titleEn : cat.titleRu }}</v-list-item-title>
                 </v-list-item-content>
-              </v-list-item>
+              </v-list-item> -->
+              <v-treeview
+                activatable
+                hoverable
+                item-text="titleEn"
+                open-on-click
+                return-object
+                :active="active"
+                :items="categories"
+                @update:active="setActiveCat"
+              />
             </v-card-text>
           </v-card>
         </aside>
@@ -104,11 +108,14 @@ export default {
   data () {
     return {
       categories: [{
+        id: 1,
         code: 'all',
         titleRu: 'Все',
-        titleEn: 'All'
+        titleEn: 'All',
+        titleCh: 'All'
       }],
       category: '',
+      active: [{ id: 1 }],
       showCards: true,
       showRows: false,
       loading: false,
@@ -119,23 +126,6 @@ export default {
         rowsPerPageItems: [10, 20, 40]
       },
       totalItems: 0,
-      breadcrumbs: [
-        {
-          text: 'Компьютеры и офис',
-          disabled: false,
-          href: '/',
-        },
-        {
-          text: 'Комплектующие для ПК',
-          disabled: false,
-          href: '/',
-        },
-        {
-          text: 'Видеокарты',
-          disabled: true,
-          href: '/',
-        },
-      ],
     }
   },
   computed: {
@@ -144,14 +134,14 @@ export default {
         return this.goods;
       }
 
-      return this.goods.filter(g => g.category1 === this.category);
+      return this.goods.filter(g => g.category?.code === this.category || g.subCategory?.code === this.category || g.subSubCategory?.code === this.category);
     }
   },
   async mounted () {
-    this.category = this.$route.query?.category || 'all';
+    this.category = 'all';
 
-    this.getCats();
-    this.getGoods();
+    await this.getCats();
+    await this.getGoods();
   },
   methods: {
     openGoodsItem (id) {
@@ -162,27 +152,27 @@ export default {
       this.setPaginationItemsPerPage(pagination.itemsPerPage)
       this.pagination = pagination
     },
-    setCategory (code) {
-      this.category = code;
+    setActiveCat (cat) {
+      const { code, id } = cat[0];
+      console.log('code', code)
+      console.log('id', id)
 
-      this.$router.push({
-        path: this.$route.path,
-        query: {
-          ...this.$route.query,
-          category: code
-        }
-      });
-
-      this.checkCategoryActive();
-    },
-    checkCategoryActive () {
-      for (const cat of this.categories) {
-        cat.selected = false;
-
-        if (cat.code === this.category) {
-          cat.selected = true;
-        }
+      if (!code && !id) {
+        return;
       }
+
+      this.category = code;
+      this.active = [{ id: id }];
+
+      console.log('active', this.active);
+
+      // this.$router.push({
+      //   path: this.$route.path,
+      //   query: {
+      //     ...this.$route.query,
+      //     category: cat[0].code
+      //   }
+      // });
     },
     async getGoods () {
       this.loading = true;
@@ -204,9 +194,27 @@ export default {
               captionCh
               isActive
               intervals
-              category1
-              category2
-              category3
+              category {
+                code
+                titleRu
+                titleEn
+                titleCh
+                isActive
+              }
+              subCategory {
+                code
+                titleRu
+                titleEn
+                titleCh
+                isActive
+              }
+              subSubCategory {
+                code
+                titleRu
+                titleEn
+                titleCh
+                isActive
+              }
               seller {
                 id
                 companyName
@@ -241,12 +249,22 @@ export default {
               isActive
               titleRu
               titleEn
+              titleCh
               children {
                 id
                 code
                 isActive
                 titleRu
                 titleEn
+                titleCh
+                children {
+                  id
+                  code
+                  isActive
+                  titleRu
+                  titleEn
+                  titleCh
+                }
               }
             }
           }
@@ -259,12 +277,10 @@ export default {
       });
 
       if (response?.data?.data?.categories) {
-        this.categories = [...this.categories, ...response.data.data.categories];
+        this.categories = [ ...this.categories, ...response.data.data.categories ];
       }
 
       this.loading = false;
-
-      this.checkCategoryActive();
     },
     setPaginationPage (page) {
 
@@ -275,6 +291,19 @@ export default {
   }
 }
 </script>
+
+<style>
+  .v-treeview-node__root.v-treeview-node--active {
+    color: #fafafa !important;
+    background-color: #FF9B00 !important;
+  }
+
+  .v-treeview-node__root > .v-treeview-node__content > * {
+    white-space: normal;
+    height: fit-content;
+    padding: 2px 0;
+}
+</style>
 
 <style lang="scss" scoped>
   .v-list-item__title, .v-list-item__subtitle {

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      v-if="loading || !data.length"
+      v-if="loading"
       class="goods-cards-container"
       :class="{ row: row }"
     >
@@ -20,6 +20,9 @@
       v-else
       :class="{ row: row }"
     >
+      <section v-if="!data.length" class="card-holder">
+        <p style="text-align: center;">В данной категории пока нет товаров :(</p>
+      </section>
       <div
         class="goods-cards-container"
         :class="{ row: row }"

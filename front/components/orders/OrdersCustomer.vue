@@ -203,8 +203,27 @@ export default {
               }
               isActive
               intervals
-              category1
-              category2
+              category {
+                code
+                titleRu
+                titleEn
+                titleCh
+                isActive
+              }
+              subCategory {
+                code
+                titleRu
+                titleEn
+                titleCh
+                isActive
+              }
+              subSubCategory {
+                code
+                titleRu
+                titleEn
+                titleCh
+                isActive
+              }
               category3
               seller {
                 id

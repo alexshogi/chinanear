@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      v-if="loading || !data.length"
+      v-if="loading"
       class="goods-cards-container"
     >
       <div
@@ -14,85 +14,90 @@
         />
       </div>
     </div>
-    <div
-      v-else
-      class="goods-cards-container"
-    >
+    <div v-else>
+      <section v-if="!data.length">
+        <p style="text-align: center;">В данной категории пока нет товаров :(</p>
+      </section>
       <div
-        v-for="item in data"
-        :key="item.id"
-        class="card-holder"
+        v-else
+        class="goods-cards-container"
       >
-        <v-card
-          class="simple-goods-block d-flex flex-row"
-          flat
-          @click="openGoods(item.id)"
+        <div
+          v-for="item in data"
+          :key="item.id"
+          class="card-holder"
         >
-          <div
-            class="goods-image mr-7"
-            :style="`background-image: url(${item.image?.url})`"
-          />
-          <v-card-text class="d-flex flex-column justify-space-between">
-            <div>
-              <span
-                class="goods-title mb-2"
-              >
-                {{ item.title }}
-              </span>
-              <span
-                class="goods-text"
-              >
-                {{ item.caption }}
-              </span>
-            </div>
-            
-            <div>
-              <span
-                class="goods-text"
-              >
-                {{ $t('seller') }}:
-                <a color="blue" href="/">{{ item.seller?.companyMarketNameEn }}</a> 
-              </span>
-              <br>
-              <span
-                class="goods-text"
-              >
-                {{ $t('in-stock') }}: {{ item.balance }}
-              </span>
-            </div>
-          </v-card-text>
-          <v-card-actions
-            class="d-flex flex-column justify-space-between align-end"
-            style="min-width: 300px;"
+          <v-card
+            class="simple-goods-block d-flex flex-row"
+            flat
+            @click="openGoods(item.id)"
           >
-            <span
-              class="goods-price-minmax"
+            <div
+              class="goods-image mr-7"
+              :style="`background-image: url(${item.image?.url})`"
+            />
+            <v-card-text class="d-flex flex-column justify-space-between">
+              <div>
+                <span
+                  class="goods-title mb-2"
+                >
+                  {{ item.title }}
+                </span>
+                <span
+                  class="goods-text"
+                >
+                  {{ item.caption }}
+                </span>
+              </div>
+              
+              <div>
+                <span
+                  class="goods-text"
+                >
+                  {{ $t('seller') }}:
+                  <a color="blue" href="/">{{ item.seller?.companyMarketNameEn }}</a> 
+                </span>
+                <br>
+                <span
+                  class="goods-text"
+                >
+                  {{ $t('in-stock') }}: {{ item.balance }}
+                </span>
+              </div>
+            </v-card-text>
+            <v-card-actions
+              class="d-flex flex-column justify-space-between align-end"
+              style="min-width: 300px;"
             >
-              <money-format
-                :value="minPrice(item)"
-                locale="ru"
-                currency-code="rub"
-                style="display: inline-block;"
-              />
-              —
-              <money-format
-                :value="maxPrice(item)"
-                locale="ru"
-                currency-code="rub"
-                style="display: inline-block;"
-              />
-            </span>
-            <v-btn
-              color="primary"
-              class="btn-common"
-              depressed
-              :disabled="isProductInCart(item)"
-              @click="addToCart(item)"
-            >
-              {{ isProductInCart(item) ? $t('in-cart') : $t('add-to-cart') }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+              <span
+                class="goods-price-minmax"
+              >
+                <money-format
+                  :value="minPrice(item)"
+                  locale="ru"
+                  currency-code="rub"
+                  style="display: inline-block;"
+                />
+                —
+                <money-format
+                  :value="maxPrice(item)"
+                  locale="ru"
+                  currency-code="rub"
+                  style="display: inline-block;"
+                />
+              </span>
+              <v-btn
+                color="primary"
+                class="btn-common"
+                depressed
+                :disabled="isProductInCart(item)"
+                @click="addToCart(item)"
+              >
+                {{ isProductInCart(item) ? $t('in-cart') : $t('add-to-cart') }}
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </div>
       </div>
     </div>
   </div>

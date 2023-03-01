@@ -55,5 +55,6 @@ export default {
     text-align: center;
     color: #fafafa;
     border-radius: 8px;
+    white-space: nowrap;
   }
 </style>

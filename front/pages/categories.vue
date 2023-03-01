@@ -34,10 +34,14 @@ export default {
     return {
       loading: false,
       categories: [],
+      subCategories: [],
+      subSubCategories: [],
     }
   },
-  mounted() {
-    this.getCats();
+  async mounted() {
+    await this.getCats();
+    await this.getSubCats();
+    await this.getSubSubCats();
   },
   methods: {
     async getCats () {
@@ -52,12 +56,14 @@ export default {
               isActive
               titleRu
               titleEn
+              titleCh
               children {
                 id
                 code
                 isActive
                 titleRu
                 titleEn
+                titleCh
               }
             }
           }
@@ -71,6 +77,88 @@ export default {
 
       if (response?.data?.data?.categories) {
         this.categories = [...response.data.data.categories];
+      }
+
+      this.loading = false;
+    },
+    async getSubCats () {
+      this.loading = true;
+
+      const graphqlQuery = {
+        query: `
+          query {
+            subCategories(where: {}) {
+              id
+              code
+              isActive
+              titleRu
+              titleEn
+              titleCh
+              parent {
+                id
+                code
+                isActive
+                titleRu
+                titleEn
+                titleCh
+              }
+              children {
+                id
+                code
+                isActive
+                titleRu
+                titleEn
+                titleCh
+              }
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      if (response?.data?.data?.subCategories) {
+        this.subCategories = [...response.data.data.subCategories];
+      }
+
+      this.loading = false;
+    },
+    async getSubSubCats () {
+      this.loading = true;
+
+      const graphqlQuery = {
+        query: `
+          query {
+            subSubCategories(where: {}) {
+              id
+              code
+              isActive
+              titleRu
+              titleEn
+              titleCh
+              parent {
+                id
+                code
+                isActive
+                titleRu
+                titleEn
+                titleCh
+              }
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      if (response?.data?.data?.subSubCategories) {
+        this.subSubCategories = [...response.data.data.subSubCategories];
       }
 
       this.loading = false;

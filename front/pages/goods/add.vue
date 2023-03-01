@@ -244,7 +244,6 @@
 </template>
 
 <script>
-import { decode } from 'base64-arraybuffer';
 import PictureInput from '@/components/PictureInput.vue';
 import Editor from '@/components/Editor';
 
