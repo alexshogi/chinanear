@@ -140,6 +140,7 @@ export default {
     getItemPrice (item) {
       let price = 0;
 
+      console.log(6, item.titleEn, item.intervals?.length)
       for (const interval of item.intervals) {
         if (item.amount >= interval.from && item.amount <= interval.to) {
           price = interval.price;
@@ -162,12 +163,80 @@ export default {
     },
     calculateOrderSum (order) {
       let sum = 0;
+      console.log(77, order)
 
       for (const item of order.products) {
+        console.log(7, item.amount)
         sum += this.getItemPrice(item) * item.amount;
       }
 
       return sum || '?';
+    },
+    async getOrderProducts (orderProducts) {
+      let queryString = '';
+
+      for (const p of orderProducts) {
+        queryString += `{ id: { equals: "${p.id}" } }`;
+      }
+
+      if (!queryString) return;
+
+      const graphqlQuery = {
+        query: `
+          query {
+            products (where: { OR: [
+              ${queryString}
+            ] }) {
+              id
+              titleRu
+              titleEn
+              titleCh
+              captionRu
+              captionEn
+              captionCh
+              descriptionRu
+              descriptionEn
+              descriptionCh
+              balance
+              image {
+                url
+              }
+              isActive
+              intervals
+              category1
+              category2
+              category3
+              seller {
+                id
+                companyName
+                companyMarketNameRu
+                companyMarketNameEn
+              }
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get products response', response);
+
+      if (response?.data?.data?.products) {
+        const products = response.data.data.products;
+
+        for (const p of products) {
+          const orderProduct = orderProducts.find(orderProduct => orderProduct.id === p.id);
+
+          if (orderProduct) {
+            p.amount = orderProduct.amount;
+          }
+        }
+
+        return products;
+      }
     },
     async getOrders () {
       this.loading = true;
@@ -224,6 +293,7 @@ export default {
         for (const o of orders) {
           if (o.products) {
             o.products = JSON.parse(o.products.replace(/'/g, '"'));
+            o.products = await this.getOrderProducts(o.products);
           }
         }
 

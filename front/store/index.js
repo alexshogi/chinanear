@@ -47,6 +47,8 @@ const store = () => new Vuex.Store({
       state.cart.products = [];
     },
     SET_CART_PRODUCT_AMOUNT(state, { id, amount }) {
+      console.log(2, id, amount)
+      console.log(3, state.cart.products)
       const product = state.cart.products.find(p => p.id === id);
       product.amount = amount;
     },
@@ -69,15 +71,32 @@ const store = () => new Vuex.Store({
       commit('SET_CART', cart);
     },
     addProductToCart({ commit }, product) {
-      commit('ADD_PRODUCT_TO_CART', product);
+      const thinProduct = {
+        id: product.id,
+        amount: product.amount,
+        price: product.price
+      }
+
+      commit('ADD_PRODUCT_TO_CART', thinProduct);
     },
     addProductsToCart({ commit }, products) {
-      commit('ADD_PRODUCTS_TO_CART', products);
+      const thinProducts = [];
+
+      for (const p of products) {
+        thinProducts.push({
+          id: p.id,
+          amount: p.amount,
+          price: p.price
+        })
+      }
+
+      commit('ADD_PRODUCTS_TO_CART', thinProducts);
     },
     removeProductFromCart({ commit }, productId) {
       commit('REMOVE_PRODUCT_FROM_CART', productId);
     },
     setCartProductAmount({ commit }, { id, amount }) {
+      console.log(1, id, amount)
       commit('SET_CART_PRODUCT_AMOUNT', { id, amount });
     },
     clearCart({ commit }) {

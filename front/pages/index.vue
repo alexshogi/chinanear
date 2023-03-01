@@ -127,10 +127,10 @@ export default {
   },
   computed: {
     popularGoods () {
-      return this.goods.slice(0, 5);
+      return this.goods.slice(0, 6);
     },
     popularCats () {
-      return this.categories.slice(0, 4);
+      return this.categories.slice(0, 5);
     }
   },
   mounted () {
@@ -152,23 +152,15 @@ export default {
           query {
             products {
               id
-              title
-              caption
               titleRu
               titleEn
               titleCh
               captionRu
               captionEn
               captionCh
-              descriptionRu {
-                document
-              }
-              descriptionEn {
-                document
-              }
-              descriptionCh {
-                document
-              }
+              descriptionRu
+              descriptionEn
+              descriptionCh
               balance
               image {
                 url

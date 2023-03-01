@@ -1,11 +1,9 @@
 <template>
   <ClientOnly>
-    <!-- Use the component in the right place of the template -->
-    <tiptap-vuetify v-model="content" :extensions="extensions"/>
-
-    <template #placeholder>
-      Loading...
-    </template>
+    <tiptap-vuetify
+      v-model="content"
+      :extensions="extensions"
+    />
   </ClientOnly>
 </template>
 

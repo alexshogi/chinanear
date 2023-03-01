@@ -169,6 +169,72 @@ export default {
 
       return sum || '?';
     },
+    async getOrderProducts (orderProducts) {
+      let queryString = '';
+
+      for (const p of orderProducts) {
+        queryString += `{ id: { equals: "${p.id}" } }`;
+      }
+
+      if (!queryString) return;
+
+      const graphqlQuery = {
+        query: `
+          query {
+            products (where: { OR: [
+              ${queryString}
+            ] }) {
+              id
+              titleRu
+              titleEn
+              titleCh
+              captionRu
+              captionEn
+              captionCh
+              descriptionRu
+              descriptionEn
+              descriptionCh
+              balance
+              image {
+                url
+              }
+              isActive
+              intervals
+              category1
+              category2
+              category3
+              seller {
+                id
+                companyName
+                companyMarketNameRu
+                companyMarketNameEn
+              }
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get products response', response);
+
+      if (response?.data?.data?.products) {
+        const products = response.data.data.products;
+
+        for (const p of products) {
+          const orderProduct = orderProducts.find(orderProduct => orderProduct.id === p.id);
+
+          if (orderProduct) {
+            p.amount = orderProduct.amount;
+          }
+        }
+
+        return products;
+      }
+    },
     async getOrders () {
       this.loading = true;
 
@@ -225,6 +291,8 @@ export default {
           if (o.products) {
             o.products = JSON.parse(o.products.replace(/'/g, '"'));
           }
+
+          o.products = await this.getOrderProducts(o.products);
         }
 
         this.orders = orders;

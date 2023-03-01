@@ -192,8 +192,6 @@ export default {
           query {
             products {
               id
-              title
-              caption
               balance
               image {
                 url

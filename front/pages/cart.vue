@@ -90,7 +90,7 @@
             </v-col>
           </v-row> -->
           <v-row
-            v-for="item in cartProducts"
+            v-for="item in products"
             :key="item.id"
             class="cart-item mt-2 mb-2"
           >
@@ -128,7 +128,11 @@
               </v-btn>
             </v-col>
             <v-col cols="2">
-              <p class="mt-2">{{ item.intervals[0]?.price * item.amount }} ₽ </p>
+              <money-format
+                :value="item.intervals[0]?.price * item.amount"
+                locale="ru"
+                currency-code="rub"
+              />
             </v-col>
             <v-col cols="2">
               <v-text-field
@@ -290,6 +294,7 @@ export default {
       address: '',
       orderStatuses: [],
       bottomSheet: false,
+      products: [],
     }
   },
   computed: {
@@ -301,8 +306,9 @@ export default {
     totalPrice () {
       let price = 0;
 
-      for (const item of this.cartProducts) {
+      for (const item of this.products) {
         if (item?.intervals?.length) {
+          // TODO: rework price calculation
           price += item.intervals[0].price * item.amount;
         }
       }
@@ -321,11 +327,22 @@ export default {
         if (newVal.street) this.address += `${newVal.street}, `;
         if (newVal.house) this.address += `${newVal.house}`;
         if (newVal.building) this.address += `${newVal.building}`;
+
+        this.getCartProducts();
       }
     },
+    cart: function (newVal) {
+      console.log(898989, newVal.id);
+      if (newVal.id) {
+        this.getCartProducts();
+      }
+    },
+    deep: true
   },
-  mounted () {
-    this.getOrderStatuses();
+  async mounted () {
+    await this.getOrderStatuses();
+
+    this.checkCart();
 
     if (this.user?.id) {
       this.address = '';
@@ -344,6 +361,9 @@ export default {
       setCartProductAmount: 'setCartProductAmount',
       clearCart: 'clearCart',
     }),
+    checkCart () {
+      if (this.cartProducts?.length) this.getCartProducts();
+    },
     handleProductAmountInput(product) {
       console.log('** handleProductAmountInput');
       console.log(product);
@@ -364,6 +384,75 @@ export default {
       this.confirmRemoveDialog = false;
       this.updateCart();
     },
+    async getCartProducts () {
+      let queryString = '';
+
+      for (const p of this.cartProducts) {
+        queryString += `{ id: { equals: "${p.id}" } }`;
+      }
+
+      console.log('queryString', queryString);
+      console.log('cartProducts', this.cartProducts);
+
+      if (!queryString) return;
+
+      const graphqlQuery = {
+        query: `
+          query {
+            products (where: { OR: [
+              ${queryString}
+            ] }) {
+              id
+              titleRu
+              titleEn
+              titleCh
+              captionRu
+              captionEn
+              captionCh
+              descriptionRu
+              descriptionEn
+              descriptionCh
+              balance
+              image {
+                url
+              }
+              isActive
+              intervals
+              category1
+              category2
+              category3
+              seller {
+                id
+                companyName
+                companyMarketNameRu
+                companyMarketNameEn
+              }
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get products response', response);
+
+      if (response?.data?.data?.products) {
+        const products = response.data.data.products;
+
+        for (const p of products) {
+          const cartProduct = this.cartProducts.find(cartProduct => cartProduct.id === p.id);
+
+          if (cartProduct) {
+            p.amount = cartProduct.amount;
+          }
+        }
+
+        this.products = [ ...products ];
+      }
+    },
     async updateCart () {
       const graphqlQuery = {
         query: `
@@ -374,7 +463,6 @@ export default {
               }
               data: {
                 products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
-                userId: "${this.user.id}"
               }
             ) {
               id
@@ -457,7 +545,7 @@ export default {
                 }
                 seller: {
                   connect: {
-                    id: "${this.cartProducts[0].seller.id}"
+                    id: "${this.products[0].seller.id}"
                   }
                 }
                 status: {

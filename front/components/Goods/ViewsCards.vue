@@ -44,7 +44,19 @@
               <span
                 class="goods-price-minmax mb-1"
               >
-                ₽ {{ minPrice(item) }} - {{ maxPrice(item) }}
+                <money-format
+                  :value="minPrice(item)"
+                  locale="ru"
+                  currency-code="rub"
+                  style="display: inline-block;"
+                />
+                —
+                <money-format
+                  :value="maxPrice(item)"
+                  locale="ru"
+                  currency-code="rub"
+                  style="display: inline-block;"
+                />
               </span>
               <span
                 class="goods-title"
@@ -73,12 +85,14 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { PerfectScrollbar } from 'vue2-perfect-scrollbar';
+import MoneyFormat from 'vue-money-format';
 import text from '@/utils/mixins/text';
 
 export default {
   name: 'ViewsCards',
   components: {
-    PerfectScrollbar
+    PerfectScrollbar,
+    MoneyFormat,
   },
   mixins: [
     text
@@ -192,8 +206,7 @@ export default {
                 id: "${this.cart.id}"
               }
               data: {
-                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
-                userId: "${this.user.id}"
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}"
               }
             ) {
               id
@@ -309,7 +322,7 @@ export default {
   min-height: 300px;
 
   &.row {
-    grid-template-columns: repeat(6, minmax(300px, 1fr)) !important;
+    grid-template-columns: repeat(5, minmax(360px, 1fr)) !important;
     grid-template-rows: 370px;
     max-height: 370px;
     // overflow-y: hidden;
@@ -326,7 +339,8 @@ export default {
 
 .simple-goods-card {
   min-width: 224px;
-  // max-width: 230px;
+  width: 100%;
+  max-width: 320px;
   height: 330px;
   background: #FFFFFF;
   border-radius: 4px;

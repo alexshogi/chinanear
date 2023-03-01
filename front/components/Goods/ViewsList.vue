@@ -62,12 +62,25 @@
             </div>
           </v-card-text>
           <v-card-actions
-            class="d-flex flex-column justify-space-between"
+            class="d-flex flex-column justify-space-between align-end"
+            style="min-width: 300px;"
           >
             <span
               class="goods-price-minmax"
             >
-              {{ minPrice(item) }} - {{ maxPrice(item) }} ₽
+              <money-format
+                :value="minPrice(item)"
+                locale="ru"
+                currency-code="rub"
+                style="display: inline-block;"
+              />
+              —
+              <money-format
+                :value="maxPrice(item)"
+                locale="ru"
+                currency-code="rub"
+                style="display: inline-block;"
+              />
             </span>
             <v-btn
               color="primary"
@@ -87,10 +100,14 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
+import MoneyFormat from 'vue-money-format';
 import text from '@/utils/mixins/text';
 
 export default {
   name: 'ViewsList',
+  components: {
+    MoneyFormat,
+  },
   mixins: [
     text
   ],
@@ -199,8 +216,7 @@ export default {
                 id: "${this.cart.id}"
               }
               data: {
-                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}",
-                userId: "${this.user.id}"
+                products: "${JSON.stringify(this.cartProducts).replace(/"/g, '\'')}"
               }
             ) {
               id

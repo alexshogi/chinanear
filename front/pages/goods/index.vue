@@ -126,7 +126,7 @@
               :headers="headers"
               :items="filteredProducts"
               :items-per-page="15"
-              :loading="!products.length"
+              :loading="loading"
               checkbox-color="primary"
               flat
               style="width: 100%;"
@@ -183,6 +183,7 @@ export default {
   },
   data () {
     return {
+      loading: false,
       products: [],
       searchValue: '',
       statuses: [
@@ -271,6 +272,8 @@ export default {
       return item.intervals[0].price;
     },
     async getProducts () {
+      this.loading = true;
+
       const graphqlQuery = {
         query: `
           query {
@@ -284,26 +287,15 @@ export default {
               }
             ) {
               id
-              title
-              caption
-              description {
-                document
-              }
               titleRu
               titleEn
               titleCh
               captionRu
               captionEn
               captionCh
-              descriptionRu {
-                document
-              }
-              descriptionEn {
-                document
-              }
-              descriptionCh {
-                document
-              }
+              descriptionRu
+              descriptionEn
+              descriptionCh
               balance
               image {
                 url
@@ -328,7 +320,9 @@ export default {
 
       const products = response?.data?.data?.products;
 
-      if (products) {
+      this.loading = false;
+
+      if (products && products.length) {
         for (const p of products) {
           p.minPrice = this.minPrice(p);
         }

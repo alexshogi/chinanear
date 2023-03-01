@@ -67,7 +67,7 @@ export default {
 
     this.getRooms();
 
-    if (this.sellerId) {
+    if (this.sellerId && this.sellerId !== this.currentUserId) {
       this.checkRoomExistance();
     }
   },
@@ -106,20 +106,48 @@ export default {
       const chatRoom = response?.data?.data?.chatRoom;
 
       if (chatRoom) {
+        // chat room already exists
+        console.log('chat room already exists');
 
       } else {
+        // no room, create
+        console.log('no room, create');
         this.createRoom();
       }
     },
-    async getSeller () {
-      
-    },
     async generateRoomName () {
-      const seller = await this.getSeller();
+      const graphqlQuery = {
+        query: `
+          query {
+            user (
+              where: {
+                id: "${this.sellerId}"
+              }
+            ) {
+              name
+              surname
+              companyName
+              companyMarketNameRu
+              companyMarketNameEn
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get seller response', response);
+
+      const seller = response?.data?.data?.user;
 
       return `${seller.name} ${seller.surname} / ${this.user.name} ${this.user.surname}`;
     },
-    async createRoom (name, buyer, seller) {
+    async createRoom () {
+      const name = await this.generateRoomName();
+
       const graphqlQuery = {
         query: `
           mutation {
@@ -128,8 +156,8 @@ export default {
                 roomName: "${name}"
                 users: {
                   connect: [
-                    { id: "${buyer.id}" }
-                    { id: "${seller.id}" }
+                    { id: "${this.currentUserId}" }
+                    { id: "${this.sellerId}" }
                   ]
                 }
                 buyer_seller: "${this.currentUserId}_${this.sellerId}"

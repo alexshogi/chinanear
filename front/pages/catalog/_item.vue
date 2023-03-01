@@ -23,7 +23,7 @@
         >
           <v-row>
             <v-col>
-              <h1>{{ item.title }}</h1>
+              <h1>{{ title }}</h1>
             </v-col>
           </v-row>
           <v-row class="pt-0 mt-0">
@@ -62,7 +62,7 @@
               class="pt-9"
             >
               <h2 class="mb-2">{{$t('short-description')}}</h2>
-              <p>{{ item.caption }}</p>
+              <p>{{ caption }}</p>
 
               <h2 class="mt-8 mb-3">{{$t('price')}}</h2>
               <v-simple-table
@@ -106,15 +106,9 @@
             </v-col>
           </v-row>
           <v-row class="mb-4">
-            <v-col>
+            <v-col v-if="description">
               <h2 class="mb-4 text-center">{{$t('product-information')}}</h2>
-              <!-- <client-only v-if="description">
-                <Slate :value="description">
-                  <Editable readOnly></Editable>
-                </Slate>
-              </client-only> -->
-
-              <Editor text="Hello bitch" />
+              <div v-html="description"></div>
             </v-col>
           </v-row>
         </v-card>
@@ -163,6 +157,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { PerfectScrollbar } from 'vue2-perfect-scrollbar';
+
 import Editor from '@/components/Editor';
 
 export default {
@@ -174,6 +169,7 @@ export default {
   },
   data () {
     return {
+      name: 'World',
       loading: false,
       activePhoto: '',
       activePhotoIndex: 0,
@@ -205,12 +201,20 @@ export default {
     isProductInCart () {
       return this.cartProducts.some(p => p.id === this.item.id);
     },
+    title () {
+      if (this.$i18n.locale === 'ru') return this.item.titleRu;
+      if (this.$i18n.locale === 'en') return this.item.titleEn;
+      if (this.$i18n.locale === 'ch') return this.item.titleCh;
+    },
+    caption () {
+      if (this.$i18n.locale === 'ru') return this.item.captionRu;
+      if (this.$i18n.locale === 'en') return this.item.captionEn;
+      if (this.$i18n.locale === 'ch') return this.item.captionCh;
+    },
     description () {
-      const doc = this.item?.description?.document;
-
-      if (doc) {
-        return JSON.stringify(doc);
-      }
+      if (this.item && this.$i18n.locale === 'ru') return this.item.descriptionRu;
+      if (this.item && this.$i18n.locale === 'en') return this.item.descriptionEn;
+      if (this.item && this.$i18n.locale === 'ch') return this.item.descriptionCh;
 
       return '';
     },
@@ -329,26 +333,15 @@ export default {
           query {
             product(where: { id: "${id}" }) {
               id
-              title
-              caption
-              description {
-                document
-              }
               titleRu
               titleEn
               titleCh
               captionRu
               captionEn
               captionCh
-              descriptionRu {
-                document
-              }
-              descriptionEn {
-                document
-              }
-              descriptionCh {
-                document
-              }
+              descriptionRu
+              descriptionEn
+              descriptionCh
               balance
               image {
                 url

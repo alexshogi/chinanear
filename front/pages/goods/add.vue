@@ -50,7 +50,7 @@
 
               <section class="images">
                 <div
-                  v-for="elem in 12"
+                  v-for="elem in 6"
                   :key="elem"
                   class="image"
                 >
@@ -78,7 +78,7 @@
 
           <v-row>
             <v-col
-              cols="1"
+              cols="12"
               class="d-flex align-center"
             >
               <img
@@ -90,13 +90,10 @@
                 style="box-shadow: 0 0 2px 2px #d5d5d5;"
               >
               RU
-            </v-col>
-            <v-col
-              cols="11"
-            >
               <v-text-field
                 v-model="titleRu"
                 label="Наименование товара на русском языке"
+                class="ml-4"
                 dense
                 hide-details
                 outlined
@@ -122,13 +119,17 @@
             <v-col
               cols="12"
             >
-              <Editor text="Hello bitch" />
+              <Editor :text="descriptionRu" />
             </v-col>
+          </v-row>
+
+          <v-row class="mt-10 mb-8">
+            <div class="divider" />
           </v-row>
 
           <v-row>
             <v-col
-              cols="1"
+              cols="12"
               class="d-flex align-center"
             >
               <img
@@ -140,13 +141,10 @@
                 style="box-shadow: 0 0 5px 2px #d5d5d5;"
               >
               GB
-            </v-col>
-            <v-col
-              cols="11"
-            >
               <v-text-field
                 v-model="titleEn"
                 label="Product name in English"
+                class="ml-4"
                 dense
                 hide-details
                 outlined
@@ -172,13 +170,17 @@
             <v-col
               cols="12"
             >
-              <Editor text="Hello bitch" />
+              <Editor :text="descriptionEn" />
             </v-col>
+          </v-row>
+
+          <v-row class="mt-10 mb-8">
+            <div class="divider" />
           </v-row>
 
           <v-row>
             <v-col
-              cols="1"
+              cols="12"
               class="d-flex align-center"
             >
               <img
@@ -190,13 +192,10 @@
                 style="box-shadow: 0 0 5px 2px #d5d5d5;"
               >
               CH
-            </v-col>
-            <v-col
-              cols="11"
-            >
               <v-text-field
                 v-model="titleCh"
                 label="中文產品名稱"
+                class="ml-4"
                 dense
                 hide-details
                 outlined
@@ -222,9 +221,22 @@
             <v-col
               cols="12"
             >
-              <Editor text="Hello bitch" />
+              <Editor :text="descriptionCh" />
             </v-col>
           </v-row>
+
+          <v-row class="mt-4">
+            <v-col cols="12">
+              <h2>Выберите категорию товара</h2>
+            </v-col>
+          </v-row>
+
+          <v-row class="mt-4">
+            <v-col cols="12">
+              <h2>Выберите единицы измерения, введите остатки, количество и стоимость товара</h2>
+            </v-col>
+          </v-row>
+
         </v-card>
       </v-col>
     </v-row>
@@ -232,6 +244,7 @@
 </template>
 
 <script>
+import { decode } from 'base64-arraybuffer';
 import PictureInput from '@/components/PictureInput.vue';
 import Editor from '@/components/Editor';
 
@@ -257,6 +270,9 @@ export default {
       descriptionCh: '',
     }
   },
+  computed: {
+
+  },
   methods: {
     onMainImageChange (image) {
       if (image) {
@@ -264,13 +280,99 @@ export default {
       }
     },
     onImageChange (image, elem) {
-      this.images[elem] = image;
+      console.log('*** onImageChange');
+      console.log('* image');
+      console.log(image);
+      console.log('* elem');
+      console.log(elem);
+
+      this.uploadImageToBack(image, elem);
     },
     removeMainImage () {
       this.image = null;
     },
     removeImage (elem) {
-      this.images[elem] = null;
+      this.images[elem - 1] = null;
+    },
+    async uploadImageToBack(image, elem) {
+      const file = this.$refs['pictureInput'][elem - 1].file;
+
+      const query = `
+        mutation($file: Upload!) {
+          createImage (
+            data: {
+              image: {
+                upload: $file
+              }
+              name: "${file.name}"
+            }
+          ) {
+            id
+            name
+            image {
+              id
+              url
+              width
+              height
+              filesize
+              extension
+            }
+          }
+        }
+      `;
+
+      const variables = {
+        file: file
+      }
+
+      const request = await this.prepareGraphQLRequest(query, variables);
+
+      const response = await fetch('http://localhost:3000/api/graphql', request);
+      const responseBody = await response.text();
+      const result = JSON.parse(responseBody);
+
+      console.log('Upload image response', result);
+
+      if (result?.data?.createImage) {
+        const image = result.data.createImage;
+
+        this.images[elem - 1] = image;
+
+        console.log(this.images);
+      }
+    },
+    async prepareGraphQLRequest(query, variables) {
+      let request;
+
+      const data = {
+        operations: JSON.stringify({
+          query,
+          variables: {
+            ...variables,
+            file: null
+          }
+        }),
+        map: JSON.stringify({
+          '0': [
+            'variables.file'
+          ]
+        })
+      };
+
+      const requestBody = new FormData();
+
+      for (const name in data) {
+        requestBody.append(name, data[name]);
+      }
+
+      requestBody.append('0', variables.file);
+
+      request = {
+        method: 'POST',
+        body: requestBody
+      }
+
+      return request;
     }
   }
 }
@@ -279,6 +381,10 @@ export default {
 <style>
   .btn-hidden {
     display: none;
+  }
+
+  .v-btn--fab {
+    z-index: 14000 !important;
   }
 
   .v-btn--fab.v-size--x-small {
@@ -333,7 +439,7 @@ export default {
       width: calc(100% - 288px - 40px);
       display: grid;
       gap: 32px;
-      grid-template-columns: repeat(6, 128px);
+      grid-template-columns: repeat(3, 128px);
       grid-template-rows: repeat(2, 128px);
       padding: 0 10px;
 

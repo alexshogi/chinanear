@@ -485,9 +485,9 @@ export default {
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
     }
   },
-  mounted () {
+  async mounted () {
     this.checkAuth();
-    this.getCart();
+    await this.getCart();
   },
   methods: {
     ...mapActions({
@@ -528,10 +528,8 @@ export default {
 
       const cart = response?.data?.data?.cart;
 
-      if (cart) {
-        if (cart.products) {
-          cart.products = JSON.parse(cart.products.replace(/'/g, '"'));
-        }
+      if (cart && cart.products) {
+        cart.products = JSON.parse(cart.products.replace(/'/g, '"'));
         this.setCart(cart);
       }
     },
