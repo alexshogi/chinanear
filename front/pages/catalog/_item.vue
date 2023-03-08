@@ -15,7 +15,7 @@
     </v-row>
     <v-row>
       <v-col
-        cols="9"
+        :cols="goodCols"
       >
         <v-card
           flat
@@ -23,7 +23,17 @@
         >
           <v-row>
             <v-col>
-              <h1>{{ title }}</h1>
+              <h1
+                class="d-flex align-center"
+              >
+                {{ title }}
+                <Label
+                  v-if="myGood"
+                  :value="$t('my-product')"
+                  color="orange"
+                  class="ml-4"
+                />
+              </h1>
             </v-col>
           </v-row>
           <v-row class="pt-0 mt-0">
@@ -61,7 +71,7 @@
               md="6"
               class="pt-9"
             >
-              <h2 class="mb-2">{{$t('short-description')}}</h2>
+              <h2 class="mb-2">{{ $t('short-description') }}</h2>
               <p>{{ caption }}</p>
 
               <h2 class="mt-8 mb-3">{{$t('price')}}</h2>
@@ -86,13 +96,20 @@
                         v-for="interval in item.intervals"
                         :key="interval.order"
                       >
-                        {{ interval.price }} ₽
+                        <money-format
+                          :value="interval.price"
+                          :locale="$i18n.locale"
+                          :currency-code="currency.code"
+                        />
                       </td>
                     </tr>
                   </tbody>
                 </template>
               </v-simple-table>
-              <p class="mt-3">
+              <p
+                v-if="!myGood"
+                class="mt-3"
+              >
                 <v-btn
                   color="primary"
                   depressed
@@ -115,6 +132,7 @@
       </v-col>
 
       <v-col
+        v-if="!myGood"
         cols="3"
       >
         <v-card
@@ -157,6 +175,8 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { PerfectScrollbar } from 'vue2-perfect-scrollbar';
+import MoneyFormat from 'vue-money-format';
+import Label from '@/components/Label.vue';
 
 import Editor from '@/components/Editor';
 
@@ -166,6 +186,8 @@ export default {
   components: {
     PerfectScrollbar,
     Editor,
+    Label,
+    MoneyFormat,
   },
   data () {
     return {
@@ -196,8 +218,16 @@ export default {
   computed: {
     ...mapGetters({
       cartProducts: 'cartProducts',
-      user: 'user'
+      user: 'user',
+      currency: 'currency',
+      currencyRates: 'currencyRates',
     }),
+    myGood () {
+      return this.item?.seller?.id === this.user?.id
+    },
+    goodCols () {
+      return this.myGood ? '12' : '9'
+    },
     isProductInCart () {
       return this.cartProducts.some(p => p.id === this.item.id);
     },

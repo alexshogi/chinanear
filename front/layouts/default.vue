@@ -39,7 +39,10 @@
                     <span>English</span>
                     <v-icon>mdi-menu-down</v-icon>
                   </div>
-                  <div v-if="$i18n.locale === 'ru'">
+                  <div
+                    v-if="$i18n.locale === 'ru'"
+                    class="d-flex align-center"
+                  >
                     <img
                       width="22px"
                       height="16px"
@@ -50,10 +53,27 @@
                     <span>Русский</span>
                     <v-icon>mdi-menu-down</v-icon>
                   </div>
+                  <div
+                    v-if="$i18n.locale === 'ch'"
+                    class="d-flex align-center"
+                  >
+                    <img
+                      width="22px"
+                      height="16px"
+                      src="../static/flag_ch.png"
+                      alt="CH"
+                      class="mr-2"
+                    >
+                    <span>Русский</span>
+                    <v-icon>mdi-menu-down</v-icon>
+                  </div>
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item class="list-elem" @click="switchLang('en')">
+                <v-list-item
+                  class="list-elem"
+                  @click="switchLang('en')"
+                >
                   <v-list-item-title>
                     <img
                       width="22px"
@@ -65,7 +85,10 @@
                     English
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item class="list-elem" @click="switchLang('ru')">
+                <v-list-item
+                  class="list-elem"
+                  @click="switchLang('ru')"
+                >
                   <v-list-item-title>
                     <img
                       width="22px"
@@ -77,7 +100,10 @@
                     Русский
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item class="list-elem" disabled>
+                <v-list-item
+                  class="list-elem"
+                  @click="switchLang('ch')"
+                >
                   <v-list-item-title>
                     <img
                       width="22px"
@@ -104,18 +130,38 @@
                   class="px-1"
                 >
                   <img
+                    v-if="currency.code === 'RUB'"
                     width="22px"
                     height="16px"
                     src="../static/flag_ru.png"
                     alt="RU"
                     class="mr-2"
                   >
-                  <span>RUB</span>
+                  <img
+                    v-if="currency.code === 'USD'"
+                    width="22px"
+                    height="16px"
+                    src="../static/flag_en.png"
+                    alt="RU"
+                    class="mr-2"
+                  >
+                  <img
+                    v-if="currency.code === 'CNY'"
+                    width="22px"
+                    height="16px"
+                    src="../static/flag_ch.png"
+                    alt="RU"
+                    class="mr-2"
+                  >
+                  <span>{{ currency.code }}</span>
                   <v-icon>mdi-menu-down</v-icon>
                 </v-btn>
               </template>
               <v-list>
-                <v-list-item class="list-elem" disabled>
+                <v-list-item
+                  class="list-elem"
+                  @click="switchCurrency('USD')"
+                >
                   <v-list-item-title>
                     <img
                       width="22px"
@@ -127,7 +173,10 @@
                     USD
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item class="list-elem">
+                <v-list-item
+                  class="list-elem"
+                  @click="switchCurrency('RUB')"
+                >
                   <v-list-item-title>
                     <img
                       width="22px"
@@ -139,7 +188,10 @@
                     RUB
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item class="list-elem" disabled>
+                <v-list-item
+                  class="list-elem"
+                  @click="switchCurrency('CNY')"
+                >
                   <v-list-item-title>
                     <img
                       width="22px"
@@ -178,10 +230,10 @@
             <v-list>
               <v-list-item
                 class="list-elem"
-                @click="logout"
+                @click="doLogout()"
               >
                 <v-list-item-title>
-                  {{$t('logout')}}
+                  {{ $t('logout') }}
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -270,7 +322,7 @@
                   Русский
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item class="list-elem" disabled>
+              <v-list-item class="list-elem">
                 <v-list-item-title>
                   <img
                     width="22px"
@@ -327,6 +379,21 @@
         </v-btn>
 
         <v-spacer />
+
+        <v-btn
+          :color="$vuetify.theme.themes[theme].transparent"
+          class="header-btn"
+          depressed
+          height="40"
+          @click="goToCatalog"
+        >
+          <v-icon
+            :color="$vuetify.theme.themes[theme].headerGrey"
+          >
+            mdi-view-grid
+          </v-icon>
+          <span>{{$t('catalog')}}</span>
+        </v-btn>
 
         <v-btn
           v-if="authorised"
@@ -450,12 +517,7 @@
       :style="{background: $vuetify.theme.themes[theme].footerBackground}"
     >
       <span
-        style="font-weight: 400;
-        font-size: 16px;
-        line-height: 24px;
-        text-align: center;
-        color: #616161;"
-      >
+        style="font-weight: 400; font-size: 16px; line-height: 24px; text-align: center; color: #616161;">
         {{ $t('not-a-public-offer') }}
         (c) Evil Tech,
         {{ new Date().getFullYear() }}
@@ -480,6 +542,8 @@ export default {
       user: 'user',
       authorised: 'authorised',
       cartProductsAmount: 'cartProductsAmount',
+      currency: 'currency',
+      currencyRates: 'currencyRates',
     }),
     theme () {
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
@@ -488,17 +552,20 @@ export default {
   async mounted () {
     this.checkAuth();
     await this.getCart();
+    await this.getCurrencyRates();
   },
   methods: {
     ...mapActions({
       setAuth: 'login',
       logout: 'logout',
       setCart: 'setCart',
+      setCurrencyRates: 'setCurrencyRates',
+      setCurrency: 'setCurrency',
     }),
     checkAuth () {
       const auth = localStorage.getItem('auth');
 
-      if (auth) {
+      if (auth && auth !== 'null') {
         this.setAuth(JSON.parse(auth));
       }
     },
@@ -533,6 +600,37 @@ export default {
         this.setCart(cart);
       }
     },
+    async getCurrencyRates () {
+      const graphqlQuery = {
+        query: `
+          query {
+            currencyRates {
+              code
+              value
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get currency rates response', response);
+
+      const currencyRates = response?.data?.data?.currencyRates;
+
+      this.setCurrencyRates(currencyRates)
+      this.setCurrency(currencyRates[0])
+    },
+    doLogout () {
+      this.logout();
+      this.$router.push({ name: 'auth' });
+    },
+    goToCatalog () {
+      this.$router.push({ name: 'catalog' });
+    },
     goToCart () {
       this.$router.push({ name: 'cart' });
     },
@@ -547,6 +645,17 @@ export default {
     },
     switchLang (locale) {
       this.$i18n.setLocale(locale);
+    },
+    switchCurrency (curr) {
+      if (!curr) return;
+
+      const currency = this.currencyRates.find(c => c.code === curr);
+
+      console.log(currency);
+
+      if (currency) {
+        this.setCurrency(currency);
+      }
     }
   }
 }

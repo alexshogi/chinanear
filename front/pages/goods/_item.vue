@@ -86,7 +86,11 @@
                         v-for="interval in item.intervals"
                         :key="interval.order"
                       >
-                        {{ interval.price }} ₽
+                        <money-format
+                          :value="interval.price"
+                          :locale="$i18n.locale"
+                          :currency-code="currency.code"
+                        />
                       </td>
                     </tr>
                   </tbody>
@@ -165,28 +169,6 @@ export default {
       loading: false,
       activePhoto: '',
       activePhotoIndex: 0,
-      breadcrumbs: [
-        {
-          text: 'Электроника',
-          disabled: false,
-          href: '/',
-        },
-        {
-          text: 'Бытовая электроника',
-          disabled: false,
-          href: '/',
-        },
-        {
-          text: 'Утюги',
-          disabled: false,
-          href: '/',
-        },
-        {
-          text: 'Паровой утюг Braun TexStyle 7 SI7088GY',
-          disabled: true,
-          href: '/',
-        },
-      ],
     }
   },
   computed: {

@@ -116,7 +116,7 @@
               cols="6"
               class="text-info"
             >
-              <h3 class="mt-2">{{ item.title }}</h3>
+              <h3 class="mt-2">{{ getTitle(item) }}</h3>
               <v-btn
                 color="red"
                 class="mb-2"
@@ -129,9 +129,9 @@
             </v-col>
             <v-col cols="2">
               <money-format
-                :value="item.intervals[0]?.price * item.amount"
-                locale="ru"
-                currency-code="rub"
+                :value="getItemPrice(item) * item.amount"
+                :locale="$i18n.locale"
+                :currency-code="currency.code"
               />
             </v-col>
             <v-col cols="2">
@@ -152,8 +152,8 @@
               >
                 <money-format
                   :value="getItemPrice(item)"
-                  locale="ru"
-                  currency-code="rub"
+                  :locale="$i18n.locale"
+                  :currency-code="currency.code"
                 />
               </span>
             </v-col>
@@ -187,8 +187,8 @@
             >
               <money-format
                 :value="totalPrice"
-                locale="ru"
-                currency-code="rub"
+                :locale="$i18n.locale"
+                :currency-code="currency.code"
               />
             </p>
           </v-card-text>
@@ -302,19 +302,18 @@ export default {
       cartProducts: 'cartProducts',
       user: 'user',
       cart: 'cart',
+      currency: 'currency',
+      currencyRates: 'currencyRates',
     }),
     totalPrice () {
-      let price = 0;
+      let sum = 0;
 
       for (const item of this.products) {
-        if (item?.intervals?.length) {
-          // TODO: rework price calculation
-          price += item.intervals[0].price * item.amount;
-        }
+        sum += this.getItemPrice(item) * item.amount;
       }
 
-      return price;
-    }
+      return sum || '?';
+    },
   },
   watch: {
     user: function (newVal) {
@@ -361,6 +360,16 @@ export default {
       setCartProductAmount: 'setCartProductAmount',
       clearCart: 'clearCart',
     }),
+    getTitle (item) {
+      if (this.$i18n.locale === 'ru') return item.titleRu;
+      if (this.$i18n.locale === 'en') return item.titleEn;
+      if (this.$i18n.locale === 'ch') return item.titleCh;
+    },
+    getCaption (item) {
+      if (this.$i18n.locale === 'ru') return item.captionRu;
+      if (this.$i18n.locale === 'en') return item.captionEn;
+      if (this.$i18n.locale === 'ch') return item.captionCh;
+    },
     checkCart () {
       if (this.cartProducts?.length) this.getCartProducts();
     },
@@ -510,7 +519,7 @@ export default {
         }
       }
 
-      return price;
+      return price * parseFloat(this.currency.value);
     },
     async getOrderStatuses () {
       const graphqlQuery = {
@@ -594,6 +603,35 @@ export default {
         this.createdOrderId = response.data.data.createOrder.id;
         this.bottomSheet = true;
       }
+    },
+    getItemPrice (item) {
+      let price = 0;
+
+      for (const interval of item.intervals) {
+        if (item.amount >= interval.from && item.amount <= interval.to) {
+          price = interval.price;
+        }
+      }
+
+      return price * parseFloat(this.currency.value);
+    },
+    minPrice (item) {
+      if (! item.intervals) {
+        return '';
+      }
+
+      const usdPrice = item.intervals[item.intervals.length - 1].price;
+
+      return usdPrice * parseFloat(this.currency.value);
+    },
+    maxPrice (item) {
+      if (! item.intervals) {
+        return '';
+      }
+
+      const usdPrice = item.intervals[0].price;
+
+      return usdPrice * parseFloat(this.currency.value);
     },
   }
 }

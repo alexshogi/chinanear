@@ -107,8 +107,8 @@
               >
                 <money-format
                   :value="getItemPrice(item)"
-                  locale="ru"
-                  currency-code="rub"
+                  :locale="$i18n.locale"
+                  :currency-code="currency.code"
                 />
               </template>
               <template
@@ -116,8 +116,8 @@
               >
                 <money-format
                   :value="getItemPrice(item) * item.amount"
-                  locale="ru"
-                  currency-code="rub"
+                  :locale="$i18n.locale"
+                  :currency-code="currency.code"
                 />
               </template>
             </v-data-table>
@@ -170,8 +170,8 @@
                 {{ $t('order-sum') }}:
                 <money-format
                   :value="orderSum"
-                  locale="ru"
-                  currency-code="rub"
+                  :locale="$i18n.locale"
+                  :currency-code="currency.code"
                   style="display: inline-block;"
                 />
               </h2>
@@ -223,6 +223,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import Label from '@/components/Label.vue';
 import MoneyFormat from 'vue-money-format';
 
@@ -242,6 +243,11 @@ export default {
     }
   },
   computed: {
+    ...mapGetters({
+      user: 'user',
+      currency: 'currency',
+      currencyRates: 'currencyRates',
+    }),
     headers () {
       return [
         { text: '', value: 'image', sortable: false, width: 80 },
@@ -458,7 +464,7 @@ export default {
         }
       }
 
-      return price;
+      return price * parseFloat(this.currency.value);
     },
     async copyOrderIdToClipboard () {
       try {

@@ -141,6 +141,16 @@
                 />
               </template>
               <template
+                v-slot:[`item.title`]="{ item }"
+              >
+                <span>{{ getTitle(item) }}</span>
+              </template>
+              <template
+                v-slot:[`item.category`]="{ item }"
+              >
+                <span>{{ getCategoryTitle(item) }}</span>
+              </template>
+              <template
                 v-slot:[`item.createdAt`]="{ item }"
               >
                 <span>{{ item.createdAt | datetime }}</span>
@@ -157,9 +167,9 @@
                 v-slot:[`item.minPrice`]="{ item }"
               >
                 <money-format
-                  :value="item.minPrice"
-                  locale="ru"
-                  currency-code="rub"
+                  :value="minPrice(item)"
+                  :locale="$i18n.locale"
+                  :currency-code="currency.code"
                 />
               </template>
             </v-data-table>
@@ -220,14 +230,16 @@ export default {
   },
   computed: {
     ...mapGetters({
-      user: 'user'
+      user: 'user',
+      currency: 'currency',
+      currencyRates: 'currencyRates',
     }),
     headers () {
       return [
         { text: '', value: 'image', width: 80 },
         { text: this.$t('product'), value: 'title' },
         { text: this.$t('balance'), value: 'balance' },
-        { text: this.$t('category'), value: 'category1' },
+        { text: this.$t('category'), value: 'category' },
         { text: this.$t('created-changed'), value: 'createdAt' },
         { text: this.$t('activity'), value: 'isActive' },
         { text: this.$t('min-price'), value: 'minPrice' }
@@ -235,7 +247,7 @@ export default {
     },
     filteredProducts () {
       if (this.searchValue) {
-        return this.products.filter(p => p.title.toLowerCase().includes(this.searchValue.toLowerCase()));
+        return this.products.filter(p => p.titleEn.toLowerCase().includes(this.searchValue.toLowerCase()));
       }
 
       return this.products;
@@ -254,22 +266,41 @@ export default {
     ...mapActions({
       setAuth: 'login',
     }),
-    goToAdd () {
-      this.$router.push({ path: 'goods/add' });
-    },
     minPrice (item) {
       if (! item.intervals) {
         return '';
       }
 
-      return item.intervals[item.intervals.length - 1].price;
+      const usdPrice = item.intervals[item.intervals.length - 1].price;
+
+      return usdPrice * parseFloat(this.currency.value);
     },
     maxPrice (item) {
       if (! item.intervals) {
         return '';
       }
 
-      return item.intervals[0].price;
+      const usdPrice = item.intervals[0].price;
+
+      return usdPrice * parseFloat(this.currency.value);
+    },
+    getTitle (item) {
+      if (this.$i18n.locale === 'ru') return item.titleRu;
+      if (this.$i18n.locale === 'en') return item.titleEn;
+      if (this.$i18n.locale === 'ch') return item.titleCh;
+    },
+    getCaption (item) {
+      if (this.$i18n.locale === 'ru') return item.captionRu;
+      if (this.$i18n.locale === 'en') return item.captionEn;
+      if (this.$i18n.locale === 'ch') return item.captionCh;
+    },
+    getCategoryTitle (item) {
+      if (this.$i18n.locale === 'ru') return item.category?.titleRu;
+      if (this.$i18n.locale === 'en') return item.category?.titleEn;
+      if (this.$i18n.locale === 'ch') return item.category?.titleCh;
+    },
+    goToAdd () {
+      this.$router.push({ path: 'goods/add' });
     },
     async getProducts () {
       this.loading = true;

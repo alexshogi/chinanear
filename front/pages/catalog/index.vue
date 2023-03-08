@@ -58,7 +58,7 @@
               <v-treeview
                 activatable
                 hoverable
-                item-text="titleEn"
+                :item-text="getLang"
                 open-on-click
                 return-object
                 :active="active"
@@ -134,6 +134,11 @@ export default {
       }
 
       return this.goods.filter(g => g.category?.code === this.category || g.subCategory?.code === this.category || g.subSubCategory?.code === this.category);
+    },
+    getLang () {
+      if (this.$i18n.locale === 'ru') return 'titleRu';
+      if (this.$i18n.locale === 'en') return 'titleEn';
+      if (this.$i18n.locale === 'ch') return 'titleCh';
     }
   },
   async mounted () {

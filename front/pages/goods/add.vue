@@ -231,9 +231,57 @@
             </v-col>
           </v-row>
 
+          <v-row>
+            <v-col>
+              <v-select
+                v-model="selectedCategory"
+                :items="categories"
+                return-object
+                item-text="titleRu"
+                label="Category 1st level"
+                outlined
+              />
+            </v-col>
+
+            <v-col>
+              <v-select
+                v-model="selectedSubCategory"
+                :items="subCategories"
+                :disabled="!selectedCategory.id"
+                return-object
+                item-text="titleRu"
+                label="Category 2nd level"
+                outlined
+              />
+            </v-col>
+
+            <v-col>
+              <v-select
+                v-model="selectedSubSubCategory"
+                :items="subSubCategories"
+                :disabled="!selectedSubCategory.id"
+                return-object
+                item-text="titleRu"
+                label="Category 3rd level"
+                outlined
+              />
+            </v-col>
+          </v-row>
+
           <v-row class="mt-4">
             <v-col cols="12">
               <h2>Выберите единицы измерения, введите остатки, количество и стоимость товара</h2>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="balance"
+                label="Stock"
+                placeholder="0"
+                outlined
+              />
             </v-col>
           </v-row>
 
@@ -267,10 +315,24 @@ export default {
       descriptionRu: '',
       descriptionEn: '',
       descriptionCh: '',
+      categories: [],
+      subCategories: [],
+      subSubCategories: [],
+      selectedCategory: {},
+      selectedSubCategory: {},
+      selectedSubSubCategory: {},
+      balance: 0,
     }
   },
   computed: {
-
+    availableSubCategories () {
+      console.log()
+    },
+  },
+  mounted () {
+    this.fetchCategories()
+    this.fetchSubCategories()
+    this.fetchSubSubCategories()
   },
   methods: {
     onMainImageChange (image) {
@@ -279,12 +341,6 @@ export default {
       }
     },
     onImageChange (image, elem) {
-      console.log('*** onImageChange');
-      console.log('* image');
-      console.log(image);
-      console.log('* elem');
-      console.log(elem);
-
       this.uploadImageToBack(image, elem);
     },
     removeMainImage () {
@@ -292,6 +348,115 @@ export default {
     },
     removeImage (elem) {
       this.images[elem - 1] = null;
+    },
+    async fetchCategories () {
+      const graphqlQuery = {
+        query: `
+          query {
+            categories {
+              id
+              code
+              isActive
+              titleRu
+              titleEn
+              titleCh
+              children {
+                id
+                code
+                isActive
+                titleRu
+                titleEn
+                titleCh
+              }
+            }
+          }
+        `
+      }
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get categories response', response);
+
+      const categories = response?.data?.data?.categories;
+
+      if (categories) {
+        this.categories = categories
+      }
+
+      this.loading = false;
+    },
+    async fetchSubCategories () {
+      const graphqlQuery = {
+        query: `
+          query {
+            subCategories {
+              id
+              code
+              isActive
+              titleRu
+              titleEn
+              titleCh
+              children {
+                id
+                code
+                isActive
+                titleRu
+                titleEn
+                titleCh
+              }
+            }
+          }
+        `
+      }
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get sub categories response', response);
+
+      const categories = response?.data?.data?.subCategories;
+
+      if (categories) {
+        this.subCategories = categories
+      }
+
+      this.loading = false;
+    },
+    async fetchSubSubCategories () {
+      const graphqlQuery = {
+        query: `
+          query {
+            subSubCategories {
+              id
+              code
+              isActive
+              titleRu
+              titleEn
+              titleCh
+            }
+          }
+        `
+      }
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get sub sub categories response', response);
+
+      const categories = response?.data?.data?.subSubCategories;
+
+      if (categories) {
+        this.subSubCategories = categories
+      }
+
+      this.loading = false;
     },
     async uploadImageToBack(image, elem) {
       const file = this.$refs['pictureInput'][elem - 1].file;

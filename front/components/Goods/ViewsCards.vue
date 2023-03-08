@@ -35,7 +35,14 @@
           <v-card
             class="simple-goods-card"
             flat
+            style="position: relative;"
           >
+            <Label
+              v-if="myGood(item)"
+              :value="$t('my-product')"
+              color="orange"
+              style="position: absolute; top: 8px; left: 8px;"
+            />
             <v-card-text
               class="d-flex flex-column"
               @click="openGoods(item.id)"
@@ -50,21 +57,21 @@
                 <money-format
                   :value="minPrice(item)"
                   locale="ru"
-                  currency-code="rub"
+                  :currency-code="currency.code"
                   style="display: inline-block;"
                 />
                 —
                 <money-format
                   :value="maxPrice(item)"
                   locale="ru"
-                  currency-code="rub"
+                  :currency-code="currency.code"
                   style="display: inline-block;"
                 />
               </span>
               <span
                 class="goods-title"
               >
-                {{ item.title }}
+                {{ getTitle(item) }}
               </span>
             </v-card-text>
             <v-card-actions>
@@ -124,12 +131,27 @@ export default {
       cartProducts: 'cartProducts',
       user: 'user',
       cart: 'cart',
+      currency: 'currency',
+      currencyRates: 'currencyRates',
     }),
   },
   methods: {
     ...mapActions({
       addProductToCart: 'addProductToCart',
     }),
+    myGood (item) {
+      return item?.seller?.id === this.user?.id
+    },
+    getTitle (item) {
+      if (this.$i18n.locale === 'ru') return item.titleRu;
+      if (this.$i18n.locale === 'en') return item.titleEn;
+      if (this.$i18n.locale === 'ch') return item.titleCh;
+    },
+    getCaption (item) {
+      if (this.$i18n.locale === 'ru') return item.captionRu;
+      if (this.$i18n.locale === 'en') return item.captionEn;
+      if (this.$i18n.locale === 'ch') return item.captionCh;
+    },
     isProductInCart (product) {
       return this.cartProducts.some(p => p.id === product.id);
     },
@@ -235,14 +257,18 @@ export default {
         return '';
       }
 
-      return item.intervals[item.intervals.length - 1].price;
+      const usdPrice = item.intervals[item.intervals.length - 1].price;
+
+      return usdPrice * parseFloat(this.currency.value);
     },
     maxPrice (item) {
       if (! item.intervals) {
         return '';
       }
 
-      return item.intervals[0].price;
+      const usdPrice = item.intervals[0].price;
+
+      return usdPrice * parseFloat(this.currency.value);
     },
   }
 }

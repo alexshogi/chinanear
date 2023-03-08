@@ -11,7 +11,9 @@ const store = () => new Vuex.Store({
     cart: {
       id: '',
       products: []
-    }
+    },
+    currencyRates: [],
+    currency: {},
   },
   getters: {
     authorised: (state) => state.authorised,
@@ -19,6 +21,8 @@ const store = () => new Vuex.Store({
     cart: (state) => state.cart,
     cartProducts: (state) => state.cart.products,
     cartProductsAmount: (state) => state.cart.products?.length,
+    currencyRates: (state) => state.currencyRates,
+    currency: (state) => state.currency,
   },
   mutations: {
     LOGIN(state, data) {
@@ -54,6 +58,12 @@ const store = () => new Vuex.Store({
     },
     SET_CART(state, cart) {
       state.cart = cart;
+    },
+    SET_CURRENCY_RATES(state, currencyRates) {
+      state.currencyRates = currencyRates;
+    },
+    SET_CURRENCY(state, currency) {
+      state.currency = currency;
     },
   },
   actions: {
@@ -102,6 +112,12 @@ const store = () => new Vuex.Store({
     clearCart({ commit }) {
       commit('CLEAR_CART');
     },
+    setCurrencyRates({ commit }, currencyRates) {
+      commit('SET_CURRENCY_RATES', currencyRates);
+    },
+    setCurrency({ commit }, currency) {
+      commit('SET_CURRENCY', currency);
+    }
   },
 });
 

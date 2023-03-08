@@ -71,8 +71,8 @@
         >
           <money-format
             :value="calculateOrderSum(item)"
-            locale="ru"
-            currency-code="rub"
+            :locale="$i18n.locale"
+            :currency-code="currency.code"
           />
         </template>
         <template
@@ -105,7 +105,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-      user: 'user'
+      user: 'user',
+      currency: 'currency',
+      currencyRates: 'currencyRates',
     }),
     headers () {
       return [
@@ -146,7 +148,7 @@ export default {
         }
       }
 
-      return price;
+      return price * parseFloat(this.currency.value);
     },
     calculateOrderPositions (order) {
       return order.products?.length || '?';

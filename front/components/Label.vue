@@ -54,7 +54,7 @@ export default {
     line-height: 14px;
     text-align: center;
     color: #fafafa;
-    border-radius: 8px;
+    border-radius: 8px !important;
     white-space: nowrap;
   }
 </style>

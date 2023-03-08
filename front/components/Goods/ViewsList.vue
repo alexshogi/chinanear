@@ -30,8 +30,15 @@
           <v-card
             class="simple-goods-block d-flex flex-row"
             flat
+            style="position: relative;"
             @click="openGoods(item.id)"
           >
+            <Label
+              v-if="myGood(item)"
+              :value="$t('my-product')"
+              color="orange"
+              style="position: absolute; top: 8px; left: 8px;"
+            />
             <div
               class="goods-image mr-7"
               :style="`background-image: url(${item.image?.url})`"
@@ -41,12 +48,12 @@
                 <span
                   class="goods-title mb-2"
                 >
-                  {{ item.title }}
+                  {{ getTitle(item) }}
                 </span>
                 <span
                   class="goods-text"
                 >
-                  {{ item.caption }}
+                  {{ getCaption(item) }}
                 </span>
               </div>
               
@@ -74,15 +81,15 @@
               >
                 <money-format
                   :value="minPrice(item)"
-                  locale="ru"
-                  currency-code="rub"
+                  :locale="$i18n.locale"
+                  :currency-code="currency.code"
                   style="display: inline-block;"
                 />
                 —
                 <money-format
                   :value="maxPrice(item)"
-                  locale="ru"
-                  currency-code="rub"
+                  :locale="$i18n.locale"
+                  :currency-code="currency.code"
                   style="display: inline-block;"
                 />
               </span>
@@ -136,12 +143,27 @@ export default {
       cartProducts: 'cartProducts',
       user: 'user',
       cart: 'cart',
+      currency: 'currency',
+      currencyRates: 'currencyRates',
     }),
   },
   methods: {
     ...mapActions({
       addProductToCart: 'addProductToCart',
     }),
+    myGood (item) {
+      return item?.seller?.id === this.user?.id
+    },
+    getTitle (item) {
+      if (this.$i18n.locale === 'ru') return item.titleRu;
+      if (this.$i18n.locale === 'en') return item.titleEn;
+      if (this.$i18n.locale === 'ch') return item.titleCh;
+    },
+    getCaption (item) {
+      if (this.$i18n.locale === 'ru') return item.captionRu;
+      if (this.$i18n.locale === 'en') return item.captionEn;
+      if (this.$i18n.locale === 'ch') return item.captionCh;
+    },
     isProductInCart (product) {
       return this.cartProducts.some(p => p.id === product.id);
     },
@@ -243,10 +265,22 @@ export default {
       this.$emit('open-goods', id)
     },
     minPrice (item) {
-      return item.intervals[item.intervals.length - 1].price;
+      if (! item.intervals) {
+        return '';
+      }
+
+      const usdPrice = item.intervals[item.intervals.length - 1].price;
+
+      return usdPrice * parseFloat(this.currency.value);
     },
     maxPrice (item) {
-      return item.intervals[0].price;
+      if (! item.intervals) {
+        return '';
+      }
+
+      const usdPrice = item.intervals[0].price;
+
+      return usdPrice * parseFloat(this.currency.value);
     },
   }
 }

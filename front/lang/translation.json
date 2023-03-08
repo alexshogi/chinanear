@@ -56,7 +56,7 @@
     "active": "Active",
     "inactive": "Inactive",
     "product": "Product",
-    "balance": "Balance",
+    "balance": "In stock",
     "category": "Category",
     "created-changed": "Created/changed",
     "activity": "Activity",
@@ -97,7 +97,9 @@
     "i-buy": "I buy",
     "i-sell": "I sell",
     "all": "All",
-    "orders": "Orders"
+    "orders": "Orders",
+    "catalog": "Catalog",
+    "my-product": "My product"
   },
   "ru": {
     "register-success-message": "Успешная регистрация. Переход на страницу входа...",
@@ -156,7 +158,7 @@
     "active": "Активен",
     "inactive": "Неактивен",
     "product": "Товар",
-    "balance": "Остаток",
+    "balance": "В наличии",
     "category": "Категория",
     "created-changed": "Создан/изменен",
     "activity": "Активность",
@@ -197,6 +199,8 @@
     "i-buy": "Покупаю",
     "i-sell": "Продаю",
     "all": "Все",
-    "orders": "Заказы"
+    "orders": "Заказы",
+    "catalog": "Каталог",
+    "my-product": "Мой товар"
   }
 }
