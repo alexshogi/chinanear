@@ -11,11 +11,11 @@
           class="pa-4"
         >
           <div class="d-flex justify-space-between align-center pb-4">
-            <h1>Новый товар</h1>
+            <h1>Редактировать товар</h1>
             <v-btn
               color="primary"
               depressed
-              @click="createProduct"
+              @click="updateProduct"
             >
               Сохранить
             </v-btn>
@@ -43,6 +43,7 @@
                   size="5"
                   type="main"
                   button-class="btn-hidden"
+                  :prefill="image?.image?.url"
                   @change="onMainImageChange"
                   @remove="removeMainImage"
                 />
@@ -62,6 +63,7 @@
                     size="5"
                     type="regular"
                     button-class="btn-hidden"
+                    :prefill="getUrl(elem)"
                     @change="onImageChange($event, elem)"
                     @remove="removeImage(elem)"
                   />
@@ -84,7 +86,7 @@
               <img
                 width="22px"
                 height="17px"
-                src="../../static/flag_ru.png"
+                src="@/static/flag_ru.png"
                 alt="RU"
                 class="mr-3"
                 style="box-shadow: 0 0 2px 2px #d5d5d5;"
@@ -141,7 +143,7 @@
               <img
                 width="22px"
                 height="16px"
-                src="../../static/flag_en.png"
+                src="@/static/flag_en.png"
                 alt="GB"
                 class="mr-3"
                 style="box-shadow: 0 0 5px 2px #d5d5d5;"
@@ -198,7 +200,7 @@
               <img
                 width="25px"
                 height="16px"
-                src="../../static/flag_ch.png"
+                src="@/static/flag_ch.png"
                 alt="CH"
                 class="mr-3"
                 style="box-shadow: 0 0 5px 2px #d5d5d5;"
@@ -429,7 +431,7 @@
             <v-btn
               depressed
               color="primary"
-              @click="createProduct"
+              @click="updateProduct"
             >
               Сохранить
             </v-btn>
@@ -443,7 +445,7 @@
       v-model="snackbar"
       :timeout="4000"
     >
-      Товар успешно создан
+      Товар успешно обновлён
     </v-snackbar>
   </v-container>
 </template>
@@ -478,6 +480,7 @@ export default {
   },
   data () {
     return {
+      product: {},
       extensions: [
         History,
         Blockquote,
@@ -537,19 +540,151 @@ export default {
       currency: 'currency',
       currencyRates: 'currencyRates',
     }),
-    availableSubCategories () {
-      console.log()
-    },
     rows () {
       return [...this.priceRows];
     }
   },
-  mounted () {
-    this.fetchCategories();
-    this.fetchSubCategories();
-    this.fetchSubSubCategories();
+  async mounted () {
+    await this.fetchCategories();
+    await this.fetchSubCategories();
+    await this.fetchSubSubCategories();
+    await this.getProduct();
   },
   methods: {
+    getUrl (index) {
+      if (this.images[index - 1]) {
+        return this.images[index - 1].image.url;
+      }
+
+      return '';
+    },
+    async getProduct () {
+      const itemId = this.$route.params.item;
+
+      this.loading = true;
+
+      const graphqlQuery = {
+        query: `
+          query {
+            product (
+              where: {
+                id: "${itemId}"
+              }
+            ) {
+              id
+              titleEn
+              titleRu
+              titleCh
+              captionRu
+              captionEn
+              captionCh
+              descriptionRu
+              descriptionEn
+              descriptionCh
+              balance
+              intervals
+              isActive
+              author {
+                id
+              }
+              seller {
+                id
+                companyName
+                companyMarketNameRu
+                companyMarketNameEn
+              }
+              image {
+                id
+                image {
+                  id
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                id
+                image {
+                  id
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              category {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subSubCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Get product response', response);
+
+      const product = response?.data?.data?.product;
+
+      this.loading = false;
+
+      this.product = product;
+
+      let intervals = [];
+
+      if (product.intervals) {
+        intervals = product.intervals.replaceAll('*', '"');
+        intervals = JSON.parse(intervals);
+
+        if (intervals?.length) {
+          const firstInterval = intervals[0];
+          const otherIntervals = intervals.slice(1) || [];
+
+          this.priceRow = firstInterval;
+          this.priceRows = otherIntervals;
+        }
+      }
+
+      this.image = product.image
+      this.images = product.images
+      this.titleRu = product.titleRu
+      this.titleEn = product.titleEn
+      this.titleCh = product.titleCh
+      this.captionRu = product.captionRu
+      this.captionEn = product.captionEn
+      this.captionCh = product.captionCh
+      this.descriptionRu = product.descriptionRu
+      this.descriptionEn = product.descriptionEn
+      this.descriptionCh = product.descriptionCh
+      this.selectedCategory = product.category
+      this.selectedSubCategory = product.subCategory
+      this.selectedSubSubCategory = product.subSubCategory
+      this.balance = product.balance
+    },
     addPriceRow () {
       this.priceRows.push({
         from: 1,
@@ -824,8 +959,9 @@ export default {
     close () {
       this.$router.push({ name: 'goods' });
     },
-    async createProduct () {
-      console.log('=> createProduct');
+    async updateProduct () {
+      console.log('=> updateProduct');
+      const itemId = this.$route.params.item;
 
       console.log('image', this.image);
       console.log('images', this.images);
@@ -848,7 +984,6 @@ export default {
       const priceRowsAll = [ this.priceRow, ...this.priceRows ];
       let priceRowsAllString = JSON.stringify(priceRowsAll);
       priceRowsAllString = priceRowsAllString.replaceAll('"', '*');
-      console.log(7777, priceRowsAllString);
 
       let imageString = '';
 
@@ -863,7 +998,7 @@ export default {
 
         for (const image of this.images) {
           if (image) {
-            imagesString += `{ id: "${image.id}" } `;
+            imagesString += `{ id: "${this.image.id}" } `;
           }
         }
 
@@ -891,7 +1026,10 @@ export default {
       const graphqlQuery = {
         query: `
           mutation {
-            createProduct(
+            updateProduct(
+              where: {
+                id: "${itemId}"
+              }
               data: {
                 titleRu: "${this.titleRu.replaceAll('"', '')}"
                 titleEn: "${this.titleEn.replaceAll('"', '')}"
@@ -936,14 +1074,16 @@ export default {
         data: JSON.stringify(graphqlQuery)
       });
 
-      console.log('Create product response', response);
+      console.log('Update product response', response);
 
-      const productCreated = response?.data?.data?.createProduct;
+      const productUpdated = response?.data?.data?.updateProduct;
 
-      console.log('=> productCreated', productCreated);
+      console.log('=> productUpdated', productUpdated);
 
       this.loading = false;
       this.snackbar = true;
+
+      await this.getProduct();
     }
   }
 }

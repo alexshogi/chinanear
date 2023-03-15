@@ -186,6 +186,7 @@
                 <v-btn
                   icon
                   color="primary"
+                  @click="goToEdit(item)"
                 >
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
@@ -285,6 +286,10 @@ export default {
     ...mapActions({
       setAuth: 'login',
     }),
+    goToEdit (item) {
+      console.log('=> goToEdit', item.id);
+      this.$router.push({ path: `/goods/edit/${item.id}` });
+    },
     async toggleItemActivity (item) {
       console.log('=> toggleItemActivity');
       console.log(item.id, item.isActive);

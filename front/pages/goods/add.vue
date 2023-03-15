@@ -848,7 +848,6 @@ export default {
       const priceRowsAll = [ this.priceRow, ...this.priceRows ];
       let priceRowsAllString = JSON.stringify(priceRowsAll);
       priceRowsAllString = priceRowsAllString.replaceAll('"', '*');
-      console.log(7777, priceRowsAllString);
 
       let imageString = '';
 
