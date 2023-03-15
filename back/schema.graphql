@@ -199,28 +199,11 @@ input ProductRelateToManyForCreateInput {
   connect: [ProductWhereUniqueInput!]
 }
 
-type Product {
+type Image {
   id: ID!
-  title: String
-  caption: String
-  description: Product_description_Document
-  balance: Int
-  category1: String
-  category2: String
-  category3: String
-  intervals: JSON
-  isActive: Boolean
-  createdAt: DateTime
-  updatedAt: DateTime
+  name: String
+  altText: String
   image: ImageFieldOutput
-  author: User
-  seller: User
-  tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0): [Tag!]
-  tagsCount(where: TagWhereInput! = {}): Int
-}
-
-type Product_description_Document {
-  document(hydrateRelationships: Boolean! = false): JSON!
 }
 
 type ImageFieldOutput {
@@ -239,6 +222,77 @@ enum ImageExtension {
   gif
 }
 
+input ImageWhereUniqueInput {
+  id: ID
+}
+
+input ImageWhereInput {
+  AND: [ImageWhereInput!]
+  OR: [ImageWhereInput!]
+  NOT: [ImageWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  altText: StringFilter
+}
+
+input ImageOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  altText: OrderDirection
+}
+
+input ImageUpdateInput {
+  name: String
+  altText: String
+  image: ImageFieldInput
+}
+
+input ImageFieldInput {
+  upload: Upload!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input ImageUpdateArgs {
+  where: ImageWhereUniqueInput!
+  data: ImageUpdateInput!
+}
+
+input ImageCreateInput {
+  name: String
+  altText: String
+  image: ImageFieldInput
+}
+
+type Product {
+  id: ID!
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  captionRu: String
+  captionEn: String
+  captionCh: String
+  descriptionRu: String
+  descriptionEn: String
+  descriptionCh: String
+  balance: Int
+  category: Category
+  subCategory: SubCategory
+  subSubCategory: SubSubCategory
+  intervals: String
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+  image: Image
+  images(where: ImageWhereInput! = {}, orderBy: [ImageOrderByInput!]! = [], take: Int, skip: Int! = 0): [Image!]
+  imagesCount(where: ImageWhereInput! = {}): Int
+  author: User
+  seller: User
+  tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0): [Tag!]
+  tagsCount(where: TagWhereInput! = {}): Int
+}
+
 input ProductWhereUniqueInput {
   id: ID
 }
@@ -248,15 +302,25 @@ input ProductWhereInput {
   OR: [ProductWhereInput!]
   NOT: [ProductWhereInput!]
   id: IDFilter
-  title: StringFilter
-  caption: StringFilter
+  titleRu: StringFilter
+  titleEn: StringFilter
+  titleCh: StringFilter
+  captionRu: StringFilter
+  captionEn: StringFilter
+  captionCh: StringFilter
+  descriptionRu: StringFilter
+  descriptionEn: StringFilter
+  descriptionCh: StringFilter
   balance: IntNullableFilter
-  category1: StringFilter
-  category2: StringFilter
-  category3: StringFilter
+  category: CategoryWhereInput
+  subCategory: SubCategoryWhereInput
+  subSubCategory: SubSubCategoryWhereInput
+  intervals: StringFilter
   isActive: BooleanFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
+  image: ImageWhereInput
+  images: ImageManyRelationFilter
   author: UserWhereInput
   seller: UserWhereInput
   tags: TagManyRelationFilter
@@ -278,6 +342,12 @@ input BooleanFilter {
   not: BooleanFilter
 }
 
+input ImageManyRelationFilter {
+  every: ImageWhereInput
+  some: ImageWhereInput
+  none: ImageWhereInput
+}
+
 input TagManyRelationFilter {
   every: TagWhereInput
   some: TagWhereInput
@@ -286,41 +356,77 @@ input TagManyRelationFilter {
 
 input ProductOrderByInput {
   id: OrderDirection
-  title: OrderDirection
-  caption: OrderDirection
+  titleRu: OrderDirection
+  titleEn: OrderDirection
+  titleCh: OrderDirection
+  captionRu: OrderDirection
+  captionEn: OrderDirection
+  captionCh: OrderDirection
+  descriptionRu: OrderDirection
+  descriptionEn: OrderDirection
+  descriptionCh: OrderDirection
   balance: OrderDirection
-  category1: OrderDirection
-  category2: OrderDirection
-  category3: OrderDirection
+  intervals: OrderDirection
   isActive: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
 
 input ProductUpdateInput {
-  title: String
-  caption: String
-  description: JSON
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  captionRu: String
+  captionEn: String
+  captionCh: String
+  descriptionRu: String
+  descriptionEn: String
+  descriptionCh: String
   balance: Int
-  category1: String
-  category2: String
-  category3: String
-  intervals: JSON
+  category: CategoryRelateToOneForUpdateInput
+  subCategory: SubCategoryRelateToOneForUpdateInput
+  subSubCategory: SubSubCategoryRelateToOneForUpdateInput
+  intervals: String
   isActive: Boolean
   createdAt: DateTime
   updatedAt: DateTime
-  image: ImageFieldInput
+  image: ImageRelateToOneForUpdateInput
+  images: ImageRelateToManyForUpdateInput
   author: UserRelateToOneForUpdateInput
   seller: UserRelateToOneForUpdateInput
   tags: TagRelateToManyForUpdateInput
 }
 
-input ImageFieldInput {
-  upload: Upload!
+input CategoryRelateToOneForUpdateInput {
+  create: CategoryCreateInput
+  connect: CategoryWhereUniqueInput
+  disconnect: Boolean
 }
 
-"""The `Upload` scalar type represents a file upload."""
-scalar Upload
+input SubCategoryRelateToOneForUpdateInput {
+  create: SubCategoryCreateInput
+  connect: SubCategoryWhereUniqueInput
+  disconnect: Boolean
+}
+
+input SubSubCategoryRelateToOneForUpdateInput {
+  create: SubSubCategoryCreateInput
+  connect: SubSubCategoryWhereUniqueInput
+  disconnect: Boolean
+}
+
+input ImageRelateToOneForUpdateInput {
+  create: ImageCreateInput
+  connect: ImageWhereUniqueInput
+  disconnect: Boolean
+}
+
+input ImageRelateToManyForUpdateInput {
+  disconnect: [ImageWhereUniqueInput!]
+  set: [ImageWhereUniqueInput!]
+  create: [ImageCreateInput!]
+  connect: [ImageWhereUniqueInput!]
+}
 
 input UserRelateToOneForUpdateInput {
   create: UserCreateInput
@@ -341,21 +447,53 @@ input ProductUpdateArgs {
 }
 
 input ProductCreateInput {
-  title: String
-  caption: String
-  description: JSON
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  captionRu: String
+  captionEn: String
+  captionCh: String
+  descriptionRu: String
+  descriptionEn: String
+  descriptionCh: String
   balance: Int
-  category1: String
-  category2: String
-  category3: String
-  intervals: JSON
+  category: CategoryRelateToOneForCreateInput
+  subCategory: SubCategoryRelateToOneForCreateInput
+  subSubCategory: SubSubCategoryRelateToOneForCreateInput
+  intervals: String
   isActive: Boolean
   createdAt: DateTime
   updatedAt: DateTime
-  image: ImageFieldInput
+  image: ImageRelateToOneForCreateInput
+  images: ImageRelateToManyForCreateInput
   author: UserRelateToOneForCreateInput
   seller: UserRelateToOneForCreateInput
   tags: TagRelateToManyForCreateInput
+}
+
+input CategoryRelateToOneForCreateInput {
+  create: CategoryCreateInput
+  connect: CategoryWhereUniqueInput
+}
+
+input SubCategoryRelateToOneForCreateInput {
+  create: SubCategoryCreateInput
+  connect: SubCategoryWhereUniqueInput
+}
+
+input SubSubCategoryRelateToOneForCreateInput {
+  create: SubSubCategoryCreateInput
+  connect: SubSubCategoryWhereUniqueInput
+}
+
+input ImageRelateToOneForCreateInput {
+  create: ImageCreateInput
+  connect: ImageWhereUniqueInput
+}
+
+input ImageRelateToManyForCreateInput {
+  create: [ImageCreateInput!]
+  connect: [ImageWhereUniqueInput!]
 }
 
 input UserRelateToOneForCreateInput {
@@ -414,8 +552,8 @@ type Category {
   titleRu: String
   titleEn: String
   titleCh: String
-  children(where: CategoryWhereInput! = {}, orderBy: [CategoryOrderByInput!]! = [], take: Int, skip: Int! = 0): [Category!]
-  childrenCount(where: CategoryWhereInput! = {}): Int
+  children(where: SubCategoryWhereInput! = {}, orderBy: [SubCategoryOrderByInput!]! = [], take: Int, skip: Int! = 0): [SubCategory!]
+  childrenCount(where: SubCategoryWhereInput! = {}): Int
   isActive: Boolean
   createdAt: DateTime
   updatedAt: DateTime
@@ -434,16 +572,16 @@ input CategoryWhereInput {
   titleRu: StringFilter
   titleEn: StringFilter
   titleCh: StringFilter
-  children: CategoryManyRelationFilter
+  children: SubCategoryManyRelationFilter
   isActive: BooleanFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
 
-input CategoryManyRelationFilter {
-  every: CategoryWhereInput
-  some: CategoryWhereInput
-  none: CategoryWhereInput
+input SubCategoryManyRelationFilter {
+  every: SubCategoryWhereInput
+  some: SubCategoryWhereInput
+  none: SubCategoryWhereInput
 }
 
 input CategoryOrderByInput {
@@ -462,17 +600,17 @@ input CategoryUpdateInput {
   titleRu: String
   titleEn: String
   titleCh: String
-  children: CategoryRelateToManyForUpdateInput
+  children: SubCategoryRelateToManyForUpdateInput
   isActive: Boolean
   createdAt: DateTime
   updatedAt: DateTime
 }
 
-input CategoryRelateToManyForUpdateInput {
-  disconnect: [CategoryWhereUniqueInput!]
-  set: [CategoryWhereUniqueInput!]
-  create: [CategoryCreateInput!]
-  connect: [CategoryWhereUniqueInput!]
+input SubCategoryRelateToManyForUpdateInput {
+  disconnect: [SubCategoryWhereUniqueInput!]
+  set: [SubCategoryWhereUniqueInput!]
+  create: [SubCategoryCreateInput!]
+  connect: [SubCategoryWhereUniqueInput!]
 }
 
 input CategoryUpdateArgs {
@@ -485,15 +623,176 @@ input CategoryCreateInput {
   titleRu: String
   titleEn: String
   titleCh: String
-  children: CategoryRelateToManyForCreateInput
+  children: SubCategoryRelateToManyForCreateInput
   isActive: Boolean
   createdAt: DateTime
   updatedAt: DateTime
 }
 
-input CategoryRelateToManyForCreateInput {
-  create: [CategoryCreateInput!]
-  connect: [CategoryWhereUniqueInput!]
+input SubCategoryRelateToManyForCreateInput {
+  create: [SubCategoryCreateInput!]
+  connect: [SubCategoryWhereUniqueInput!]
+}
+
+type SubCategory {
+  id: ID!
+  code: String
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  parent: Category
+  children(where: SubSubCategoryWhereInput! = {}, orderBy: [SubSubCategoryOrderByInput!]! = [], take: Int, skip: Int! = 0): [SubSubCategory!]
+  childrenCount(where: SubSubCategoryWhereInput! = {}): Int
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input SubCategoryWhereUniqueInput {
+  id: ID
+}
+
+input SubCategoryWhereInput {
+  AND: [SubCategoryWhereInput!]
+  OR: [SubCategoryWhereInput!]
+  NOT: [SubCategoryWhereInput!]
+  id: IDFilter
+  code: StringFilter
+  titleRu: StringFilter
+  titleEn: StringFilter
+  titleCh: StringFilter
+  parent: CategoryWhereInput
+  children: SubSubCategoryManyRelationFilter
+  isActive: BooleanFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input SubSubCategoryManyRelationFilter {
+  every: SubSubCategoryWhereInput
+  some: SubSubCategoryWhereInput
+  none: SubSubCategoryWhereInput
+}
+
+input SubCategoryOrderByInput {
+  id: OrderDirection
+  code: OrderDirection
+  titleRu: OrderDirection
+  titleEn: OrderDirection
+  titleCh: OrderDirection
+  isActive: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input SubCategoryUpdateInput {
+  code: String
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  parent: CategoryRelateToOneForUpdateInput
+  children: SubSubCategoryRelateToManyForUpdateInput
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input SubSubCategoryRelateToManyForUpdateInput {
+  disconnect: [SubSubCategoryWhereUniqueInput!]
+  set: [SubSubCategoryWhereUniqueInput!]
+  create: [SubSubCategoryCreateInput!]
+  connect: [SubSubCategoryWhereUniqueInput!]
+}
+
+input SubCategoryUpdateArgs {
+  where: SubCategoryWhereUniqueInput!
+  data: SubCategoryUpdateInput!
+}
+
+input SubCategoryCreateInput {
+  code: String
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  parent: CategoryRelateToOneForCreateInput
+  children: SubSubCategoryRelateToManyForCreateInput
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input SubSubCategoryRelateToManyForCreateInput {
+  create: [SubSubCategoryCreateInput!]
+  connect: [SubSubCategoryWhereUniqueInput!]
+}
+
+type SubSubCategory {
+  id: ID!
+  code: String
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  parent: SubCategory
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input SubSubCategoryWhereUniqueInput {
+  id: ID
+}
+
+input SubSubCategoryWhereInput {
+  AND: [SubSubCategoryWhereInput!]
+  OR: [SubSubCategoryWhereInput!]
+  NOT: [SubSubCategoryWhereInput!]
+  id: IDFilter
+  code: StringFilter
+  titleRu: StringFilter
+  titleEn: StringFilter
+  titleCh: StringFilter
+  parent: SubCategoryWhereInput
+  isActive: BooleanFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input SubSubCategoryOrderByInput {
+  id: OrderDirection
+  code: OrderDirection
+  titleRu: OrderDirection
+  titleEn: OrderDirection
+  titleCh: OrderDirection
+  isActive: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input SubSubCategoryUpdateInput {
+  code: String
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  parent: SubCategoryRelateToOneForUpdateInput
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input SubSubCategoryUpdateArgs {
+  where: SubSubCategoryWhereUniqueInput!
+  data: SubSubCategoryUpdateInput!
+}
+
+input SubSubCategoryCreateInput {
+  code: String
+  titleRu: String
+  titleEn: String
+  titleCh: String
+  parent: SubCategoryRelateToOneForCreateInput
+  isActive: Boolean
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 type Cart {
@@ -856,6 +1155,46 @@ input ChatRoomRelateToOneForCreateInput {
   connect: ChatRoomWhereUniqueInput
 }
 
+type CurrencyRate {
+  id: ID!
+  code: String
+  value: String
+}
+
+input CurrencyRateWhereUniqueInput {
+  id: ID
+}
+
+input CurrencyRateWhereInput {
+  AND: [CurrencyRateWhereInput!]
+  OR: [CurrencyRateWhereInput!]
+  NOT: [CurrencyRateWhereInput!]
+  id: IDFilter
+  code: StringFilter
+  value: StringFilter
+}
+
+input CurrencyRateOrderByInput {
+  id: OrderDirection
+  code: OrderDirection
+  value: OrderDirection
+}
+
+input CurrencyRateUpdateInput {
+  code: String
+  value: String
+}
+
+input CurrencyRateUpdateArgs {
+  where: CurrencyRateWhereUniqueInput!
+  data: CurrencyRateUpdateInput!
+}
+
+input CurrencyRateCreateInput {
+  code: String
+  value: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -868,6 +1207,12 @@ type Mutation {
   updateUsers(data: [UserUpdateArgs!]!): [User]
   deleteUser(where: UserWhereUniqueInput!): User
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
+  createImage(data: ImageCreateInput!): Image
+  createImages(data: [ImageCreateInput!]!): [Image]
+  updateImage(where: ImageWhereUniqueInput!, data: ImageUpdateInput!): Image
+  updateImages(data: [ImageUpdateArgs!]!): [Image]
+  deleteImage(where: ImageWhereUniqueInput!): Image
+  deleteImages(where: [ImageWhereUniqueInput!]!): [Image]
   createProduct(data: ProductCreateInput!): Product
   createProducts(data: [ProductCreateInput!]!): [Product]
   updateProduct(where: ProductWhereUniqueInput!, data: ProductUpdateInput!): Product
@@ -886,6 +1231,18 @@ type Mutation {
   updateCategories(data: [CategoryUpdateArgs!]!): [Category]
   deleteCategory(where: CategoryWhereUniqueInput!): Category
   deleteCategories(where: [CategoryWhereUniqueInput!]!): [Category]
+  createSubCategory(data: SubCategoryCreateInput!): SubCategory
+  createSubCategories(data: [SubCategoryCreateInput!]!): [SubCategory]
+  updateSubCategory(where: SubCategoryWhereUniqueInput!, data: SubCategoryUpdateInput!): SubCategory
+  updateSubCategories(data: [SubCategoryUpdateArgs!]!): [SubCategory]
+  deleteSubCategory(where: SubCategoryWhereUniqueInput!): SubCategory
+  deleteSubCategories(where: [SubCategoryWhereUniqueInput!]!): [SubCategory]
+  createSubSubCategory(data: SubSubCategoryCreateInput!): SubSubCategory
+  createSubSubCategories(data: [SubSubCategoryCreateInput!]!): [SubSubCategory]
+  updateSubSubCategory(where: SubSubCategoryWhereUniqueInput!, data: SubSubCategoryUpdateInput!): SubSubCategory
+  updateSubSubCategories(data: [SubSubCategoryUpdateArgs!]!): [SubSubCategory]
+  deleteSubSubCategory(where: SubSubCategoryWhereUniqueInput!): SubSubCategory
+  deleteSubSubCategories(where: [SubSubCategoryWhereUniqueInput!]!): [SubSubCategory]
   createCart(data: CartCreateInput!): Cart
   createCarts(data: [CartCreateInput!]!): [Cart]
   updateCart(where: CartWhereUniqueInput!, data: CartUpdateInput!): Cart
@@ -916,6 +1273,12 @@ type Mutation {
   updateChatMessages(data: [ChatMessageUpdateArgs!]!): [ChatMessage]
   deleteChatMessage(where: ChatMessageWhereUniqueInput!): ChatMessage
   deleteChatMessages(where: [ChatMessageWhereUniqueInput!]!): [ChatMessage]
+  createCurrencyRate(data: CurrencyRateCreateInput!): CurrencyRate
+  createCurrencyRates(data: [CurrencyRateCreateInput!]!): [CurrencyRate]
+  updateCurrencyRate(where: CurrencyRateWhereUniqueInput!, data: CurrencyRateUpdateInput!): CurrencyRate
+  updateCurrencyRates(data: [CurrencyRateUpdateArgs!]!): [CurrencyRate]
+  deleteCurrencyRate(where: CurrencyRateWhereUniqueInput!): CurrencyRate
+  deleteCurrencyRates(where: [CurrencyRateWhereUniqueInput!]!): [CurrencyRate]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -942,6 +1305,9 @@ type Query {
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
+  images(where: ImageWhereInput! = {}, orderBy: [ImageOrderByInput!]! = [], take: Int, skip: Int! = 0): [Image!]
+  image(where: ImageWhereUniqueInput!): Image
+  imagesCount(where: ImageWhereInput! = {}): Int
   products(where: ProductWhereInput! = {}, orderBy: [ProductOrderByInput!]! = [], take: Int, skip: Int! = 0): [Product!]
   product(where: ProductWhereUniqueInput!): Product
   productsCount(where: ProductWhereInput! = {}): Int
@@ -951,6 +1317,12 @@ type Query {
   categories(where: CategoryWhereInput! = {}, orderBy: [CategoryOrderByInput!]! = [], take: Int, skip: Int! = 0): [Category!]
   category(where: CategoryWhereUniqueInput!): Category
   categoriesCount(where: CategoryWhereInput! = {}): Int
+  subCategories(where: SubCategoryWhereInput! = {}, orderBy: [SubCategoryOrderByInput!]! = [], take: Int, skip: Int! = 0): [SubCategory!]
+  subCategory(where: SubCategoryWhereUniqueInput!): SubCategory
+  subCategoriesCount(where: SubCategoryWhereInput! = {}): Int
+  subSubCategories(where: SubSubCategoryWhereInput! = {}, orderBy: [SubSubCategoryOrderByInput!]! = [], take: Int, skip: Int! = 0): [SubSubCategory!]
+  subSubCategory(where: SubSubCategoryWhereUniqueInput!): SubSubCategory
+  subSubCategoriesCount(where: SubSubCategoryWhereInput! = {}): Int
   carts(where: CartWhereInput! = {}, orderBy: [CartOrderByInput!]! = [], take: Int, skip: Int! = 0): [Cart!]
   cart(where: CartWhereUniqueInput!): Cart
   cartsCount(where: CartWhereInput! = {}): Int
@@ -966,6 +1338,9 @@ type Query {
   chatMessages(where: ChatMessageWhereInput! = {}, orderBy: [ChatMessageOrderByInput!]! = [], take: Int, skip: Int! = 0): [ChatMessage!]
   chatMessage(where: ChatMessageWhereUniqueInput!): ChatMessage
   chatMessagesCount(where: ChatMessageWhereInput! = {}): Int
+  currencyRates(where: CurrencyRateWhereInput! = {}, orderBy: [CurrencyRateOrderByInput!]! = [], take: Int, skip: Int! = 0): [CurrencyRate!]
+  currencyRate(where: CurrencyRateWhereUniqueInput!): CurrencyRate
+  currencyRatesCount(where: CurrencyRateWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }

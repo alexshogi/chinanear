@@ -41,7 +41,7 @@
             />
             <div
               class="goods-image mr-7"
-              :style="`background-image: url(${item.image?.url})`"
+              :style="`background-image: url(${item.image?.image?.url})`"
             />
             <v-card-text class="d-flex flex-column justify-space-between">
               <div>
@@ -265,20 +265,26 @@ export default {
       this.$emit('open-goods', id)
     },
     minPrice (item) {
-      if (! item.intervals) {
+      if (!item.intervals) {
         return '';
       }
 
-      const usdPrice = item.intervals[item.intervals.length - 1].price;
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      const usdPrice = intervals[intervals.length - 1].price;
 
       return usdPrice * parseFloat(this.currency.value);
     },
     maxPrice (item) {
-      if (! item.intervals) {
+      if (!item.intervals) {
         return '';
       }
 
-      const usdPrice = item.intervals[0].price;
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      const usdPrice = intervals[0].price;
 
       return usdPrice * parseFloat(this.currency.value);
     },

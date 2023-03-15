@@ -108,7 +108,7 @@
             <v-col cols="2">
               <div
                 class="item-image"
-                :style="`background-image: url(${item.image.url})`"
+                :style="`background-image: url(${item.image.image.url})`"
                 alt="PHOTO"
               />
             </v-col>
@@ -136,7 +136,7 @@
             </v-col>
             <v-col cols="2">
               <v-text-field
-                type="number"   
+                type="number"
                 step="1"
                 :label="$t('amount')"
                 outlined
@@ -196,7 +196,7 @@
             <v-btn
               color="headerOrange"
               depressed
-              :disabled="!cartProducts?.length || !address"
+              :disabled="!cartProducts?.length || !address || !totalPrice"
               style="letter-spacing: normal; width: 100%; color: #FFFFFF; font-weight: 700; font-size: 14px; line-height: 17px; padding: 20px;"
               @click="checkout"
             >
@@ -312,7 +312,7 @@ export default {
         sum += this.getItemPrice(item) * item.amount;
       }
 
-      return sum || '?';
+      return sum;
     },
   },
   watch: {
@@ -412,8 +412,8 @@ export default {
               ${queryString}
             ] }) {
               id
-              titleRu
               titleEn
+              titleRu
               titleCh
               captionRu
               captionEn
@@ -422,37 +422,55 @@ export default {
               descriptionEn
               descriptionCh
               balance
-              image {
-                url
-              }
-              isActive
               intervals
-              category {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subSubCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
+              isActive
+              author {
+                id
               }
               seller {
                 id
                 companyName
                 companyMarketNameRu
                 companyMarketNameEn
+              }
+              image {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              category {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subSubCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
               }
             }
           }
@@ -506,20 +524,6 @@ export default {
       });
 
       console.log('Update cart response', response);
-    },
-    getItemPrice (item) {
-      console.log('** getItemPrice');
-      console.log(item);
-
-      let price = 0;
-
-      for (const interval of item.intervals) {
-        if (item.amount >= interval.from && item.amount <= interval.to) {
-          price = interval.price;
-        }
-      }
-
-      return price * parseFloat(this.currency.value);
     },
     async getOrderStatuses () {
       const graphqlQuery = {
@@ -607,7 +611,10 @@ export default {
     getItemPrice (item) {
       let price = 0;
 
-      for (const interval of item.intervals) {
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      for (const interval of intervals) {
         if (item.amount >= interval.from && item.amount <= interval.to) {
           price = interval.price;
         }
@@ -616,20 +623,26 @@ export default {
       return price * parseFloat(this.currency.value);
     },
     minPrice (item) {
-      if (! item.intervals) {
+      if (!item.intervals) {
         return '';
       }
 
-      const usdPrice = item.intervals[item.intervals.length - 1].price;
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      const usdPrice = intervals[intervals.length - 1].price;
 
       return usdPrice * parseFloat(this.currency.value);
     },
     maxPrice (item) {
-      if (! item.intervals) {
+      if (!item.intervals) {
         return '';
       }
 
-      const usdPrice = item.intervals[0].price;
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      const usdPrice = intervals[0].price;
 
       return usdPrice * parseFloat(this.currency.value);
     },
@@ -698,8 +711,8 @@ export default {
     }
 
     .item-image {
-      width: 100px;
-      height: 100px;
+      width: 100%;
+      height: 100%;
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;

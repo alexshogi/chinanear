@@ -1,94 +1,91 @@
 <template>
-  <div>
+  <div
+    v-if="loading"
+    class="goods-cards-container"
+    :class="{ row: row }"
+  >
     <div
-      v-if="loading"
+      v-for="item in row ? 5 : 20"
+      :key="item"
+      class="card-holder"
+    >
+      <v-skeleton-loader
+        type="image, list-item, card-heading, list-item-two-line"
+        class="simple-goods-card"
+      />
+    </div>
+  </div>
+  <div
+    v-else
+  >
+    <section v-if="!data.length" class="card-holder">
+      <p style="text-align: center;">В данной категории пока нет товаров :(</p>
+    </section>
+    <div
       class="goods-cards-container"
       :class="{ row: row }"
     >
       <div
-        v-for="item in row ? 5 : 20"
-        :key="item"
+        v-for="item in data"
+        :key="item.id"
         class="card-holder"
       >
-        <v-skeleton-loader
-          type="image, list-item, card-heading, list-item-two-line"
+        <v-card
           class="simple-goods-card"
-        />
+          flat
+          style="position: relative;"
+        >
+          <Label
+            v-if="myGood(item)"
+            :value="$t('my-product')"
+            color="orange"
+            style="position: absolute; top: 8px; left: 8px;"
+          />
+          <v-card-text
+            class="d-flex flex-column"
+            @click="openGoods(item.id)"
+          >
+            <div
+              class="goods-image mb-2"
+              :style="`background-image: url(${item.image?.image?.url})`"
+            />
+            <span
+              class="goods-price-minmax mb-1"
+            >
+              <money-format
+                :value="minPrice(item)"
+                locale="ru"
+                :currency-code="currency.code"
+                style="display: inline-block;"
+              />
+              —
+              <money-format
+                :value="maxPrice(item)"
+                locale="ru"
+                :currency-code="currency.code"
+                style="display: inline-block;"
+              />
+            </span>
+            <span
+              class="goods-title"
+            >
+              {{ getTitle(item) }}
+            </span>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn
+              color="primary"
+              class="btn-common"
+              depressed
+              :disabled="isProductInCart(item)"
+              @click="addToCart(item)"
+            >
+              {{ isProductInCart(item) ? $t('in-cart') : $t('add-to-cart') }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
       </div>
     </div>
-    <perfect-scrollbar
-      v-else
-      :class="{ row: row }"
-    >
-      <section v-if="!data.length" class="card-holder">
-        <p style="text-align: center;">В данной категории пока нет товаров :(</p>
-      </section>
-      <div
-        class="goods-cards-container"
-        :class="{ row: row }"
-      >
-        <div
-          v-for="item in data"
-          :key="item.id"
-          class="card-holder"
-        >
-          <v-card
-            class="simple-goods-card"
-            flat
-            style="position: relative;"
-          >
-            <Label
-              v-if="myGood(item)"
-              :value="$t('my-product')"
-              color="orange"
-              style="position: absolute; top: 8px; left: 8px;"
-            />
-            <v-card-text
-              class="d-flex flex-column"
-              @click="openGoods(item.id)"
-            >
-              <div
-                class="goods-image mb-2"
-                :style="`background-image: url(${item.image?.url})`"
-              />
-              <span
-                class="goods-price-minmax mb-1"
-              >
-                <money-format
-                  :value="minPrice(item)"
-                  locale="ru"
-                  :currency-code="currency.code"
-                  style="display: inline-block;"
-                />
-                —
-                <money-format
-                  :value="maxPrice(item)"
-                  locale="ru"
-                  :currency-code="currency.code"
-                  style="display: inline-block;"
-                />
-              </span>
-              <span
-                class="goods-title"
-              >
-                {{ getTitle(item) }}
-              </span>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn
-                color="primary"
-                class="btn-common"
-                depressed
-                :disabled="isProductInCart(item)"
-                @click="addToCart(item)"
-              >
-                {{ isProductInCart(item) ? $t('in-cart') : $t('add-to-cart') }}
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </div>
-      </div>
-    </perfect-scrollbar>
   </div>
 </template>
 
@@ -253,20 +250,26 @@ export default {
       this.$emit('open-goods', id)
     },
     minPrice (item) {
-      if (! item.intervals) {
+      if (!item.intervals) {
         return '';
       }
 
-      const usdPrice = item.intervals[item.intervals.length - 1].price;
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      const usdPrice = intervals[intervals.length - 1].price;
 
       return usdPrice * parseFloat(this.currency.value);
     },
     maxPrice (item) {
-      if (! item.intervals) {
+      if (!item.intervals) {
         return '';
       }
 
-      const usdPrice = item.intervals[0].price;
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      const usdPrice = intervals[0].price;
 
       return usdPrice * parseFloat(this.currency.value);
     },
@@ -349,14 +352,7 @@ export default {
   display: grid;
   gap: 16px;
   min-height: 300px;
-
-  &.row {
-    grid-template-columns: repeat(5, minmax(360px, 1fr)) !important;
-    grid-template-rows: 370px;
-    max-height: 370px;
-    // overflow-y: hidden;
-    // overflow-x: scroll;
-  }
+  width: 100%;
 }
 
 .card-holder {

@@ -15,7 +15,7 @@
     </v-row>
     <v-row>
       <v-col
-        :cols="goodCols"
+        cols="9"
       >
         <v-card
           flat
@@ -43,26 +43,24 @@
             >
               <aside>
                 <perfect-scrollbar>
-                  <!-- <div 
-                    v-if="photos && photos.length"
+                  <div 
+                    v-if="item.images && item.images.length"
                     class="gallery-small"
                   >
                     <div
-                      v-for="(image, index) in photos"
-                      :key="index"
-                      :class="{ active: index === activePhotoIndex }"
-                      :src="image?.dataUrl"
-                      :style="`background-image: url(${getImageLink(image)})`"
-                      alt="PHOTO"
+                      v-for="image in item.images"
+                      :key="image.image.id"
+                      :style="`background-image: url(${image.image.url})`"
                       class="gallery-small-image"
-                      @click="setActivePhoto(index)"
+                      @click="openImage(image?.image)"
                     />
-                  </div> -->
+                  </div>
                 </perfect-scrollbar>
                 <div
                   class="main-image"
-                  :style="`background-image: url(${getActivePhotoUrl})`"
+                  :style="`background-image: url(${item.image?.image?.url})`"
                   alt="MAIN PHOTO"
+                  @click="openImage(item.image?.image)"
                 />
               </aside>
             </v-col>
@@ -82,7 +80,7 @@
                   <thead>
                     <tr>
                       <th
-                        v-for="interval in item.intervals"
+                        v-for="interval in intervals"
                         :key="interval.to"
                         class="text-left"
                       >
@@ -93,8 +91,8 @@
                   <tbody>
                     <tr>
                       <td
-                        v-for="interval in item.intervals"
-                        :key="interval.order"
+                        v-for="interval in intervals"
+                        :key="interval.to"
                       >
                         <money-format
                           :value="interval.price"
@@ -169,6 +167,17 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <v-dialog
+      v-model="imageDialog"
+      width="800"
+    >
+      <div
+        v-if="imageDialogImage.url"
+        class="dialog-image"
+        :style="`background-image: url(${imageDialogImage.url})`"
+      />
+    </v-dialog>
   </v-container>
 </template>
 
@@ -178,23 +187,19 @@ import { PerfectScrollbar } from 'vue2-perfect-scrollbar';
 import MoneyFormat from 'vue-money-format';
 import Label from '@/components/Label.vue';
 
-import Editor from '@/components/Editor';
-
 export default {
   auth: false,
   name: 'ItemPage',
   components: {
     PerfectScrollbar,
-    Editor,
     Label,
     MoneyFormat,
   },
   data () {
     return {
-      name: 'World',
+      imageDialog: false,
+      imageDialogImage: {},
       loading: false,
-      activePhoto: '',
-      activePhotoIndex: 0,
       breadcrumbs: [
         {
           text: 'Компьютеры и оргтехника',
@@ -222,6 +227,16 @@ export default {
       currency: 'currency',
       currencyRates: 'currencyRates',
     }),
+    intervals () {
+      if (!this.item.intervals) {
+        return [];
+      }
+
+      let intervals = this.item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      return intervals;
+    },
     myGood () {
       return this.item?.seller?.id === this.user?.id
     },
@@ -248,9 +263,6 @@ export default {
 
       return '';
     },
-    getActivePhotoUrl () {
-      return this.activePhoto;
-    }
   },
   async mounted () {
     const itemId = this.$route.params.item;
@@ -328,6 +340,13 @@ export default {
 
       console.log('Create cart response', response);
     },
+    openImage (image) {
+      if (image?.url) {
+        this.imageDialogImage = image;
+
+        this.imageDialog = true;
+      }
+    },
     async updateCart () {
       const graphqlQuery = {
         query: `
@@ -363,8 +382,8 @@ export default {
           query {
             product(where: { id: "${id}" }) {
               id
-              titleRu
               titleEn
+              titleRu
               titleCh
               captionRu
               captionEn
@@ -373,37 +392,55 @@ export default {
               descriptionEn
               descriptionCh
               balance
-              image {
-                url
-              }
-              isActive
               intervals
-              category {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subSubCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
+              isActive
+              author {
+                id
               }
               seller {
                 id
                 companyName
                 companyMarketNameRu
                 companyMarketNameEn
+              }
+              image {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              category {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subSubCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
               }
             }
           }
@@ -417,7 +454,7 @@ export default {
 
       if (response?.data?.data?.product) {
         this.item = response.data.data.product;
-        this.activePhoto = this.item.image?.url;
+        this.activePhoto = this.item.image?.image?.url;
       }
 
       this.loading = false;
@@ -469,6 +506,15 @@ export default {
     color: #616161;
   }
 
+  .dialog-image {
+    height: 600px;
+    width: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #FFFFFF;
+  }
+
   aside {
     padding: 24px;
     padding-left: 0px;
@@ -482,7 +528,7 @@ export default {
       width: 400px;
       max-width: calc(100% - 20px);
       height: 400px;
-      margin-left: 16px;
+      margin: 0 auto;
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;

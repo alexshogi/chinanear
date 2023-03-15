@@ -11,22 +11,20 @@ import { allowAll } from '@keystone-6/core/access';
 import {
   text,
   integer,
+  decimal,
   relationship,
   password,
   timestamp,
   checkbox,
   image,
-  select,
   json
 } from '@keystone-6/core/fields';
-
-// the document field is a more complicated field, so it has it's own package
-import { document } from '@keystone-6/fields-document';
-// if you want to make your own fields, see https://keystonejs.com/docs/guides/custom-fields
 
 // when using Typescript, you can refine your types to a stricter subset by importing
 // the generated types from '.keystone/types'
 import type { Lists } from '.keystone/types';
+import { BaseAccessArgs, AccessOperation } from '@keystone-6/core/dist/declarations/src/types/config/access-control';
+import { MaybePromise } from '@keystone-6/core/types';
 
 export const lists: Lists = {
   User: list({
@@ -60,30 +58,37 @@ export const lists: Lists = {
     },
   }),
 
+  Image: list({
+    access: allowAll,
+    fields: {
+      name: text({ validation: { isRequired: true } }),
+      altText: text(),
+      image: image({ storage: 'server_storage' }),
+    },
+  }),
+
   Product: list({
     access: allowAll,
     fields: {
-      title: text(),
-      caption: text(),
-      description: document({ formatting: true, dividers: true, links: true, }),
       titleRu: text(),
       titleEn: text(),
       titleCh: text(),
       captionRu: text(),
       captionEn: text(),
       captionCh: text(),
-      descriptionRu: document({ formatting: true, dividers: true, links: true, }),
-      descriptionEn: document({ formatting: true, dividers: true, links: true, }),
-      descriptionCh: document({ formatting: true, dividers: true, links: true, }),
+      descriptionRu: text(),
+      descriptionEn: text(),
+      descriptionCh: text(),
       balance: integer({ validation: { min: 0 } }),
-      category1: text(),
-      category2: text(),
-      category3: text(),
-      intervals: json(),
+      category: relationship({ ref: 'Category' }),
+      subCategory: relationship({ ref: 'SubCategory' }),
+      subSubCategory: relationship({ ref: 'SubSubCategory' }),
+      intervals: text(),
       isActive: checkbox(),
       createdAt: timestamp({ defaultValue: { kind: 'now' } }),
       updatedAt: timestamp({ defaultValue: { kind: 'now' } }),
-      image: image({ storage: 'server_storage' }),
+      image: relationship({ ref: 'Image' }),
+      images: relationship({ ref: 'Image', many: true }),
       author: relationship({
         ref: 'User.productsCreated',
         ui: {
@@ -134,12 +139,50 @@ export const lists: Lists = {
 
   Category: list({
     access: allowAll,
+    ui: {
+      labelField: 'titleRu',
+    },
     fields: {
       code: text(),
       titleRu: text(),
       titleEn: text(),
       titleCh: text(),
-      children: relationship({ ref: 'Category', many: true }),
+      children: relationship({ ref: 'SubCategory', many: true }),
+      isActive: checkbox(),
+      createdAt: timestamp({ defaultValue: { kind: 'now' } }),
+      updatedAt: timestamp({ defaultValue: { kind: 'now' } }),
+    },
+  }),
+
+  SubCategory: list({
+    access: allowAll,
+    ui: {
+      labelField: 'titleRu',
+    },
+    fields: {
+      code: text(),
+      titleRu: text(),
+      titleEn: text(),
+      titleCh: text(),
+      parent: relationship({ ref: 'Category' }),
+      children: relationship({ ref: 'SubSubCategory', many: true }),
+      isActive: checkbox(),
+      createdAt: timestamp({ defaultValue: { kind: 'now' } }),
+      updatedAt: timestamp({ defaultValue: { kind: 'now' } }),
+    },
+  }),
+
+  SubSubCategory: list({
+    access: allowAll,
+    ui: {
+      labelField: 'titleRu',
+    },
+    fields: {
+      code: text(),
+      titleRu: text(),
+      titleEn: text(),
+      titleCh: text(),
+      parent: relationship({ ref: 'SubCategory' }),
       isActive: checkbox(),
       createdAt: timestamp({ defaultValue: { kind: 'now' } }),
       updatedAt: timestamp({ defaultValue: { kind: 'now' } }),
@@ -218,6 +261,15 @@ export const lists: Lists = {
       deleted: checkbox({ defaultValue: false }),
       disableActions: checkbox({ defaultValue: true }),
       disableReactions: checkbox({ defaultValue: true }),
+    }
+  }),
+
+  CurrencyRate: list({
+    access: allowAll,
+    description: 'Курс валюты по отношению к 1 USD. десятичную часть указывать через точку',
+    fields: {
+      code: text(),
+      value: text(),
     }
   })
 };

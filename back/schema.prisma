@@ -38,30 +38,54 @@ model User {
   from_ChatMessage_sender ChatMessage[] @relation("ChatMessage_sender")
 }
 
-model Product {
-  id              String    @id @default(cuid())
-  title           String    @default("")
-  caption         String    @default("")
-  description     String    @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
-  balance         Int?
-  category1       String    @default("")
-  category2       String    @default("")
-  category3       String    @default("")
-  intervals       String?
-  isActive        Boolean   @default(false)
-  createdAt       DateTime? @default(now())
-  updatedAt       DateTime? @default(now())
-  image_filesize  Int?
-  image_extension String?
-  image_width     Int?
-  image_height    Int?
-  image_id        String?
-  author          User?     @relation("Product_author", fields: [authorId], references: [id])
-  authorId        String?   @map("author")
-  seller          User?     @relation("Product_seller", fields: [sellerId], references: [id])
-  sellerId        String?   @map("seller")
-  tags            Tag[]     @relation("Product_tags")
+model Image {
+  id                  String    @id @default(cuid())
+  name                String    @default("")
+  altText             String    @default("")
+  image_filesize      Int?
+  image_extension     String?
+  image_width         Int?
+  image_height        Int?
+  image_id            String?
+  from_Product_image  Product[] @relation("Product_image")
+  from_Product_images Product[] @relation("Product_images")
+}
 
+model Product {
+  id               String          @id @default(cuid())
+  titleRu          String          @default("")
+  titleEn          String          @default("")
+  titleCh          String          @default("")
+  captionRu        String          @default("")
+  captionEn        String          @default("")
+  captionCh        String          @default("")
+  descriptionRu    String          @default("")
+  descriptionEn    String          @default("")
+  descriptionCh    String          @default("")
+  balance          Int?
+  category         Category?       @relation("Product_category", fields: [categoryId], references: [id])
+  categoryId       String?         @map("category")
+  subCategory      SubCategory?    @relation("Product_subCategory", fields: [subCategoryId], references: [id])
+  subCategoryId    String?         @map("subCategory")
+  subSubCategory   SubSubCategory? @relation("Product_subSubCategory", fields: [subSubCategoryId], references: [id])
+  subSubCategoryId String?         @map("subSubCategory")
+  intervals        String          @default("")
+  isActive         Boolean         @default(false)
+  createdAt        DateTime?       @default(now())
+  updatedAt        DateTime?       @default(now())
+  image            Image?          @relation("Product_image", fields: [imageId], references: [id])
+  imageId          String?         @map("image")
+  images           Image[]         @relation("Product_images")
+  author           User?           @relation("Product_author", fields: [authorId], references: [id])
+  authorId         String?         @map("author")
+  seller           User?           @relation("Product_seller", fields: [sellerId], references: [id])
+  sellerId         String?         @map("seller")
+  tags             Tag[]           @relation("Product_tags")
+
+  @@index([categoryId])
+  @@index([subCategoryId])
+  @@index([subSubCategoryId])
+  @@index([imageId])
   @@index([authorId])
   @@index([sellerId])
 }
@@ -73,16 +97,53 @@ model Tag {
 }
 
 model Category {
-  id                     String     @id @default(cuid())
-  code                   String     @default("")
-  titleRu                String     @default("")
-  titleEn                String     @default("")
-  titleCh                String     @default("")
-  children               Category[] @relation("Category_children")
-  isActive               Boolean    @default(false)
-  createdAt              DateTime?  @default(now())
-  updatedAt              DateTime?  @default(now())
-  from_Category_children Category[] @relation("Category_children")
+  id                      String        @id @default(cuid())
+  code                    String        @default("")
+  titleRu                 String        @default("")
+  titleEn                 String        @default("")
+  titleCh                 String        @default("")
+  children                SubCategory[] @relation("Category_children")
+  isActive                Boolean       @default(false)
+  createdAt               DateTime?     @default(now())
+  updatedAt               DateTime?     @default(now())
+  from_Product_category   Product[]     @relation("Product_category")
+  from_SubCategory_parent SubCategory[] @relation("SubCategory_parent")
+}
+
+model SubCategory {
+  id                         String           @id @default(cuid())
+  code                       String           @default("")
+  titleRu                    String           @default("")
+  titleEn                    String           @default("")
+  titleCh                    String           @default("")
+  parent                     Category?        @relation("SubCategory_parent", fields: [parentId], references: [id])
+  parentId                   String?          @map("parent")
+  children                   SubSubCategory[] @relation("SubCategory_children")
+  isActive                   Boolean          @default(false)
+  createdAt                  DateTime?        @default(now())
+  updatedAt                  DateTime?        @default(now())
+  from_Product_subCategory   Product[]        @relation("Product_subCategory")
+  from_Category_children     Category[]       @relation("Category_children")
+  from_SubSubCategory_parent SubSubCategory[] @relation("SubSubCategory_parent")
+
+  @@index([parentId])
+}
+
+model SubSubCategory {
+  id                          String        @id @default(cuid())
+  code                        String        @default("")
+  titleRu                     String        @default("")
+  titleEn                     String        @default("")
+  titleCh                     String        @default("")
+  parent                      SubCategory?  @relation("SubSubCategory_parent", fields: [parentId], references: [id])
+  parentId                    String?       @map("parent")
+  isActive                    Boolean       @default(false)
+  createdAt                   DateTime?     @default(now())
+  updatedAt                   DateTime?     @default(now())
+  from_Product_subSubCategory Product[]     @relation("Product_subSubCategory")
+  from_SubCategory_children   SubCategory[] @relation("SubCategory_children")
+
+  @@index([parentId])
 }
 
 model Cart {
@@ -152,4 +213,10 @@ model ChatMessage {
 
   @@index([roomId])
   @@index([senderId])
+}
+
+model CurrencyRate {
+  id    String @id @default(cuid())
+  code  String @default("")
+  value String @default("")
 }

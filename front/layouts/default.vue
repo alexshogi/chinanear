@@ -357,26 +357,70 @@
           <img src="../static/logo.png" alt="China Near">
         </NuxtLink>
         <v-spacer />
-        <v-text-field
-          dense
-          height="38"
-          hide-details
-          :placeholder="$t('search-global')"
-          class="search-input"
-        />
-        <v-btn
-          :color="$vuetify.theme.themes[theme].headerOrange"
-          depressed
-          height="40"
-          style="border-radius: 0px 2px 2px 0px; color: #FFFFFF; font-weight: 600; font-size: 14px; line-height: 19px; text-transform: unset;"
+        <div
+          class="d-flex"
+          style="position: relative; margin: 0 80px; width: 100%;"
         >
-          <v-icon
-            class="mr-2"
+          <v-text-field
+            v-model="searchString"
+            dense
+            height="38"
+            hide-details
+            :placeholder="$t('search-global')"
+            class="search-input"
+          />
+          <v-card
+            v-show="showResults"
+            v-click-outside="hideResults"
+            max-width="600"
+            class="mx-auto"
+            style="position: absolute; top: 45px;"
           >
-            mdi-magnify
-          </v-icon>
-          {{$t('search')}}
-        </v-btn>
+            <v-list three-line>
+              <NuxtLink
+                v-for="item in searchResults"
+                :key="item.id"
+                :to="`/catalog/${item.id}`"
+                class="search-item"
+              >
+                <v-list-item
+                  @click="clearSearchResults()"
+                >
+                  <v-list-item-avatar>
+                    <div
+                      class="goods-image"
+                      :style="`background-image: url(${item.image?.image?.url})`"
+                    />
+                  </v-list-item-avatar>
+
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ item.titleEn }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ item.captionEn }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+              </NuxtLink>
+            </v-list>
+          </v-card>
+          <v-btn
+            :color="$vuetify.theme.themes[theme].headerOrange"
+            :disabled="!searchString"
+            depressed
+            height="40"
+            style="border-radius: 0px 2px 2px 0px; color: #FFFFFF; font-weight: 600; font-size: 14px; line-height: 19px; text-transform: unset;"
+            @click="search()"
+          >
+            <v-icon
+              class="mr-2"
+            >
+              mdi-magnify
+            </v-icon>
+            {{ $t('search') }}
+          </v-btn>
+        </div>
 
         <v-spacer />
 
@@ -535,6 +579,9 @@ export default {
     return {
       miniVariant: false,
       sideDrawer: false,
+      searchString: '',
+      searchResults: [],
+      showResults: false,
     }
   },
   computed: {
@@ -547,7 +594,7 @@ export default {
     }),
     theme () {
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
-    }
+    },
   },
   async mounted () {
     this.checkAuth();
@@ -568,6 +615,110 @@ export default {
       if (auth && auth !== 'null') {
         this.setAuth(JSON.parse(auth));
       }
+    },
+    clearSearchResults () {
+      this.showResults = false;
+    },
+    hideResults () {
+      this.showResults = false;
+    },
+    async search () {
+      console.log('--> Search')
+
+      this.loading = true;
+
+      const graphqlQuery = {
+        query: `
+          query {
+            products (
+              where: {
+                OR: [
+                  { titleRu: { contains: "ge" } }
+                  { titleEn: { contains: "ge" } }
+                  { titleCh: { contains: "ge" } }
+                ]
+                AND: [
+                  { isActive: { equals: true } }
+                ]
+              }
+            ) {
+              id
+              titleEn
+              titleRu
+              titleCh
+              captionRu
+              captionEn
+              captionCh
+              descriptionRu
+              descriptionEn
+              descriptionCh
+              balance
+              intervals
+              isActive
+              author {
+                id
+              }
+              seller {
+                id
+                companyName
+                companyMarketNameRu
+                companyMarketNameEn
+              }
+              image {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              category {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subSubCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      if (response?.data?.data?.products) {
+        this.searchResults = response.data.data.products;
+        this.showResults = true;
+      }
+
+      this.loading = false;
     },
     async getCart () {
       const graphqlQuery = {
@@ -817,5 +968,28 @@ div.divider-vertical {
   line-height: 20px;
   letter-spacing: 0.02em;
   color: #616161;
+}
+</style>
+
+<style scoped>
+.goods-image {
+  height: 100%;
+  width: 100%;
+  background-color: #ffffff;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.search-item {
+  text-decoration: none;
+}
+
+.search-item .v-list-item {
+  transition: all 0.28s;
+}
+
+.search-item:hover .v-list-item {
+  background-color: #ffd9c0 !important;
 }
 </style>

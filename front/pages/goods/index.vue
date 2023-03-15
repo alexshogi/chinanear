@@ -136,7 +136,7 @@
               >
                 <div
                   class="item-image"
-                  :style="`background-image: url(${item.image?.url})`"
+                  :style="`background-image: url(${item.image?.image?.url})`"
                   alt="PHOTO"
                 />
               </template>
@@ -171,6 +171,24 @@
                   :locale="$i18n.locale"
                   :currency-code="currency.code"
                 />
+              </template>
+              <template
+                #[`item.actions`]="{ item }"
+              >
+                <v-btn
+                  icon
+                  color="primary"
+                  @click="toggleItemActivity(item)"
+                >
+                  <v-icon v-if="!item.isActive">mdi-play</v-icon>
+                  <v-icon v-if="item.isActive">mdi-pause</v-icon>
+                </v-btn>
+                <v-btn
+                  icon
+                  color="primary"
+                >
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
               </template>
             </v-data-table>
           </v-row>
@@ -242,7 +260,8 @@ export default {
         { text: this.$t('category'), value: 'category' },
         { text: this.$t('created-changed'), value: 'createdAt' },
         { text: this.$t('activity'), value: 'isActive' },
-        { text: this.$t('min-price'), value: 'minPrice' }
+        { text: this.$t('min-price'), value: 'minPrice' },
+        { text: '', value: 'actions', sortable: false },
       ]
     },
     filteredProducts () {
@@ -266,21 +285,61 @@ export default {
     ...mapActions({
       setAuth: 'login',
     }),
+    async toggleItemActivity (item) {
+      console.log('=> toggleItemActivity');
+      console.log(item.id, item.isActive);
+
+      const graphqlQuery = {
+        query: `
+          mutation {
+            updateProduct(
+              where: {
+                id: "${item.id}"
+              }
+              data: {
+                isActive: ${!item.isActive}
+              }
+            ) {
+              id
+            }
+          }
+        `
+      };
+
+      const response = await this.$axios({
+        method: 'POST',
+        data: JSON.stringify(graphqlQuery)
+      });
+
+      console.log('Create room response', response);
+
+      const productUpdated = response?.data?.data?.updateProduct;
+
+      const product = this.products.find((p) => p.id === productUpdated.id);
+
+      product.isActive = !item.isActive;
+    },
     minPrice (item) {
-      if (! item.intervals) {
+      if (!item.intervals) {
         return '';
       }
 
-      const usdPrice = item.intervals[item.intervals.length - 1].price;
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      const usdPrice = intervals[intervals.length - 1].price;
 
       return usdPrice * parseFloat(this.currency.value);
     },
     maxPrice (item) {
-      if (! item.intervals) {
+      if (!item.intervals) {
         return '';
       }
 
-      const usdPrice = item.intervals[0].price;
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      const usdPrice = intervals[0].price;
 
       return usdPrice * parseFloat(this.currency.value);
     },
@@ -318,8 +377,8 @@ export default {
               }
             ) {
               id
-              titleRu
               titleEn
+              titleRu
               titleCh
               captionRu
               captionEn
@@ -328,32 +387,55 @@ export default {
               descriptionEn
               descriptionCh
               balance
-              image {
-                url
-              }
-              isActive
               intervals
-              createdAt
+              isActive
+              author {
+                id
+              }
+              seller {
+                id
+                companyName
+                companyMarketNameRu
+                companyMarketNameEn
+              }
+              image {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
               category {
+                id
                 code
-                titleRu
                 titleEn
+                titleRu
                 titleCh
-                isActive
               }
               subCategory {
+                id
                 code
-                titleRu
                 titleEn
+                titleRu
                 titleCh
-                isActive
               }
               subSubCategory {
+                id
                 code
-                titleRu
                 titleEn
+                titleRu
                 titleCh
-                isActive
               }
             }
           }

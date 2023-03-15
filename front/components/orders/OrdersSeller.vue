@@ -142,7 +142,10 @@ export default {
     getItemPrice (item) {
       let price = 0;
 
-      for (const interval of item.intervals) {
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      for (const interval of intervals) {
         if (item.amount >= interval.from && item.amount <= interval.to) {
           price = interval.price;
         }
@@ -187,8 +190,8 @@ export default {
               ${queryString}
             ] }) {
               id
-              titleRu
               titleEn
+              titleRu
               titleCh
               captionRu
               captionEn
@@ -197,37 +200,55 @@ export default {
               descriptionEn
               descriptionCh
               balance
-              image {
-                url
-              }
-              isActive
               intervals
-              category {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subSubCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
+              isActive
+              author {
+                id
               }
               seller {
                 id
                 companyName
                 companyMarketNameRu
                 companyMarketNameEn
+              }
+              image {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              category {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subSubCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
               }
             }
           }

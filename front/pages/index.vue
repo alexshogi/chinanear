@@ -152,8 +152,8 @@ export default {
           query {
             products {
               id
-              titleRu
               titleEn
+              titleRu
               titleCh
               captionRu
               captionEn
@@ -162,37 +162,55 @@ export default {
               descriptionEn
               descriptionCh
               balance
-              image {
-                url
-              }
-              isActive
               intervals
-              category {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subSubCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
+              isActive
+              author {
+                id
               }
               seller {
                 id
                 companyName
                 companyMarketNameRu
                 companyMarketNameEn
+              }
+              image {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              category {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subSubCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
               }
             }
           }

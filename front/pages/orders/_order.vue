@@ -93,15 +93,15 @@
               >
                 <div
                   class="item-image"
-                  :style="`background-image: url(${item.image?.url})`"
+                  :style="`background-image: url(${item.image?.image?.url})`"
                   alt="PHOTO"
                 />
               </template>
-              <!-- <template
+              <template
                 v-slot:[`item.title`]="{ item }"
               >
-                <span></span>
-              </template> -->
+                <span>{{ getTitle(item) }}</span>
+              </template>
               <template
                 v-slot:[`item.price`]="{ item }"
               >
@@ -324,8 +324,8 @@ export default {
               ${queryString}
             ] }) {
               id
-              titleRu
               titleEn
+              titleRu
               titleCh
               captionRu
               captionEn
@@ -334,37 +334,55 @@ export default {
               descriptionEn
               descriptionCh
               balance
-              image {
-                url
-              }
-              isActive
               intervals
-              category {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subSubCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
+              isActive
+              author {
+                id
               }
               seller {
                 id
                 companyName
                 companyMarketNameRu
                 companyMarketNameEn
+              }
+              image {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              category {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subSubCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
               }
             }
           }
@@ -453,18 +471,28 @@ export default {
       this.loading = false;
     },
     getItemPrice (item) {
-      console.log('** getItemPrice');
-      console.log(item);
-
       let price = 0;
 
-      for (const interval of item.intervals) {
+      let intervals = item.intervals.replaceAll('*', '"');
+      intervals = JSON.parse(intervals);
+
+      for (const interval of intervals) {
         if (item.amount >= interval.from && item.amount <= interval.to) {
           price = interval.price;
         }
       }
 
       return price * parseFloat(this.currency.value);
+    },
+    getTitle (item) {
+      if (this.$i18n.locale === 'ru') return item.titleRu;
+      if (this.$i18n.locale === 'en') return item.titleEn;
+      if (this.$i18n.locale === 'ch') return item.titleCh;
+    },
+    getCaption (item) {
+      if (this.$i18n.locale === 'ru') return item.captionRu;
+      if (this.$i18n.locale === 'en') return item.captionEn;
+      if (this.$i18n.locale === 'ch') return item.captionCh;
     },
     async copyOrderIdToClipboard () {
       try {

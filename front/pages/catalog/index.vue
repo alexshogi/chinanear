@@ -82,11 +82,6 @@
           :loading="loading"
           @open-goods="openGoodsItem"
         />
-        <Pagination
-          :pagination="pagination"
-          :total-items="totalItems"
-          @change="setPage"
-        />
       </v-col>
     </v-row>
   </v-container>
@@ -95,14 +90,12 @@
 <script>
 import ViewsCards from '@/components/Goods/ViewsCards.vue'
 import ViewsList from '@/components/Goods/ViewsList.vue'
-import Pagination from '@/components/Pagination'
 
 export default {
   name: 'CatalogPage',
   components: {
     ViewsCards,
     ViewsList,
-    Pagination,
   },
   data () {
     return {
@@ -119,11 +112,6 @@ export default {
       showRows: false,
       loading: false,
       goods: [],
-      pagination: {
-        page: 1,
-        itemsPerPage: 10,
-        rowsPerPageItems: [10, 20, 40]
-      },
       totalItems: 0,
     }
   },
@@ -150,11 +138,6 @@ export default {
   methods: {
     openGoodsItem (id) {
       this.$router.push({ path: `catalog/${id}` });
-    },
-    setPage (pagination) {
-      this.setPaginationPage(pagination.page)
-      this.setPaginationItemsPerPage(pagination.itemsPerPage)
-      this.pagination = pagination
     },
     checkActiveCat () {
       if (this.category === 'all') {
@@ -197,44 +180,65 @@ export default {
           query {
             products {
               id
-              balance
-              image {
-                url
-              }
-              titleRu
               titleEn
+              titleRu
               titleCh
               captionRu
               captionEn
               captionCh
-              isActive
+              descriptionRu
+              descriptionEn
+              descriptionCh
+              balance
               intervals
-              category {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
-              }
-              subSubCategory {
-                code
-                titleRu
-                titleEn
-                titleCh
-                isActive
+              isActive
+              author {
+                id
               }
               seller {
                 id
                 companyName
                 companyMarketNameRu
                 companyMarketNameEn
+              }
+              image {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              images {
+                image {
+                  filesize
+                  width
+                  height
+                  extension
+                  url
+                }
+              }
+              category {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
+              }
+              subSubCategory {
+                id
+                code
+                titleEn
+                titleRu
+                titleCh
               }
             }
           }
@@ -298,12 +302,6 @@ export default {
       this.loading = false;
 
       this.checkActiveCat();
-    },
-    setPaginationPage (page) {
-
-    },
-    setPaginationItemsPerPage (itemsPerPage) {
-
     },
   }
 }
