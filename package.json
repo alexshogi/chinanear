@@ -4,18 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "df": "cd front && npm run dev",
-    "db": "cd back && yarn dev",
-    "bf": "cd front && npm run build",
-    "bb": "cd back && yarn build",
-    "sf": "cd front && npm run start",
-    "sb": "cd back && yarn start",
-    "if": "cd front && npm install",
-    "ib": "cd back && yarn install",
-    "dev": "concurrently \"npm run df\" \"npm run db\"",
-    "build": "concurrently \"npm run bb\" \"npm run bf\"",
-    "start": "concurrently \"npm run sb\" \"npm run sf\"",
-    "inst": "concurrently \"npm run ib\" \"npm run if\""
+    "dev": "concurrently \"cd front && npm run dev\" \"cd back && yarn dev\"",
+    "build": "concurrently \"cd back && yarn build\" \"cd front && npm run build\"",
+    "start": "concurrently \"cd back && yarn start\" \"cd front && npm run start\"",
+    "install": "concurrently \"cd back && yarn install\" \"cd front && npm install\""
   },
   "repository": {
     "type": "git",

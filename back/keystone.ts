@@ -27,7 +27,7 @@ export default withAuth(
     lists,
     session,
     server: {
-      cors: { origin: ['http://localhost:8080', 'http://194.58.122.11:8080', 'http://192.168.1.10:8080'] },
+      cors: { origin: ['http://localhost:8080', 'http://localhost:80', 'http://localhost:8081', 'https://chinanear-back.vercel.app/', 'http://194.58.122.11:8080', 'http://192.168.1.10:8080'] },
       options: {
         host: '0.0.0.0',
       },
