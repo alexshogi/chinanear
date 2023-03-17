@@ -54,7 +54,7 @@ export default {
   },
   server: {
     host: '0.0.0.0',
-    port: 8081
+    port: 8080
   },
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
