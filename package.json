@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"cd front && npm run dev\" \"cd back && yarn dev\"",
     "build": "concurrently \"cd back && yarn build\" \"cd front && npm run build\"",
-    "start": "concurrently \"cd back && yarn start\" \"cd front && npm run dev\"",
+    "start": "concurrently \"cd back && yarn start\" \"cd front && npm run start\"",
     "install": "concurrently \"cd back && yarn install\" \"cd front && npm install\""
   },
   "repository": {
